@@ -23,7 +23,7 @@ function Header() {
             customDom: null
         }, {
             title: "Favorites",
-            navigate: "/favorites",
+            navigate: "/FavoritedProperties",
             customDom: null
         },
         {

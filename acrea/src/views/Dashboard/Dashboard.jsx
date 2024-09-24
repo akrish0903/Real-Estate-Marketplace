@@ -181,7 +181,7 @@ function Dashboard() {
                                         fontSize: Config.fontSize.small
                                     }}>Boston MA</p>
                                 </div>
-                                <button style={{
+                                <button onClick={()=>{navigation("/PropertyPage")}} style={{
                                     color: Config.color.background,
                                     backgroundColor: Config.color.primaryColor900,
                                     width: "fit-content",

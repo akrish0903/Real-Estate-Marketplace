@@ -14,7 +14,7 @@ return(
     
           {/* Center Links */}
           <div className="flex space-x-4">
-            <a href="/properties" className="text-red-600 hover:underline">
+            <a href="/Viewproperties" className="text-red-600 hover:underline">
               Properties
             </a>
             {/* <a href="/terms-of-service" className="text-red-600 hover:underline">
