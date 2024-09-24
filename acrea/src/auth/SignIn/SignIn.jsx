@@ -41,10 +41,13 @@ function SignIn() {
         }
       });
 
+      //showing toast
+      // Use toast.promise with the new wrapped promise
       await toast.promise(apiCallPromise, {
         pending: "Signing in user..!!",
         success: {
-          render({ data }) {
+          render({ toastProps, closeToast, data }) {
+
             // Updating details to class
             dispatch(AuthUserDetailsSliceAction.setUsrEmail(data.user_details.usrEmail));
             dispatch(AuthUserDetailsSliceAction.setUsrFullName(data.user_details.usrFullName));
@@ -55,25 +58,30 @@ function SignIn() {
             dispatch(AuthUserDetailsSliceAction.setUsrProfileUrl(data.user_details.usrProfileUrl));
             dispatch(AuthUserDetailsSliceAction.setUserBio(data.user_details.userBio));
 
+
             formicHelpers.resetForm();
 
+
+            // logout 
             setTimeout(() => {
+
               toast.info("Session Expired", {
                 position: 'bottom-left',
               });
               navigate("/signin");
-            }, 60 * 60 * 1000);
+            }, 60 * 60 * 1000)
 
+            // Redirecting back to dashboard
             setTimeout(() => {
               navigate("/");
-            }, 5000);
+            }, 5000)
 
-            return "Account signed in successfully. Redirecting to dashboard page.";
+            return "Account signed in successfully. Redirecting to dashboard page."
           },
         },
         error: {
-          render({ data }) {
-            return data;
+          render({ toastProps, closeToast, data }) {
+            return data
           },
         },
       }, {
@@ -81,7 +89,7 @@ function SignIn() {
       });
 
     } catch (error) {
-      console.log("Sign in err ---> ", error);
+      console.log("Sign in err ---> ", error)
     }
   }
 
@@ -150,9 +158,15 @@ function SignIn() {
 
               {/* second */}
               <div className={Styles.screenRightContainerMid}>
+                {/* <div className={Styles.screenRightContainerMidTopButtons}>
+              <button type="button" className="btn btn-outline-danger">Buyer</button>
+              <button type="button" className="btn btn-outline-danger">Agent/Builder</button>
+            </div> */}
 
                 <Form className={Styles.screenRightContainerMidForm}>
-                  <div style={{ flexDirection: "column" }}>
+                  <div style={{
+                    flexDirection: "column",
+                  }}>
                     <Field
                       placeholder='Enter your Email'
                       type='email'

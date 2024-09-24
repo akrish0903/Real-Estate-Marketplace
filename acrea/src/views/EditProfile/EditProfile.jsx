@@ -114,7 +114,8 @@ function EditProfile() {
                     <div className={Styles.editProfileContainerRight}>
                         <form className={Styles.editProfileContainerRightForm}>
                             <input placeholder='Edit your name.' type={"text"} value={userEditObj.usrFullName} onChange={(e) => setUserEditObj({ ...userEditObj, usrFullName: e.target.value })} />
-                            <input placeholder='Edit your email.' type={"email"} value={userEditObj.usrEmail} onChange={(e) => setUserEditObj({ ...userEditObj, usrEmail: e.target.value })} />
+                            <input placeholder='Edit your email.' type="email" value={userEditObj.usrEmail} onChange={(e) => setUserEditObj({ ...userEditObj, usrEmail: e.target.value })} disabled />
+                            {/* <input placeholder='Edit your email.' type={"email"} value={userEditObj.usrEmail} onChange={(e) => setUserEditObj({ ...userEditObj, usrEmail: e.target.value })} /> */}
                             <input placeholder='Edit your phone number.' type={"number"} value={userEditObj.usrMobileNumber} onChange={(e) => setUserEditObj({ ...userEditObj, usrMobileNumber: e.target.value })} />
                         </form>
                         <div className={Styles.editProfileContainerRightButtonsDiv}>

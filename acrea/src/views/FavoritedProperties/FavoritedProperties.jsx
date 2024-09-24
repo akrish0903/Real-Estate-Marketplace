@@ -58,7 +58,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500 a</p>
+                }}>₹2,500 a</p>
             </div>
 
             {/* bottom */}
@@ -181,7 +181,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}
@@ -304,7 +304,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}
@@ -427,7 +427,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}
@@ -550,7 +550,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}
@@ -673,7 +673,7 @@ function FavoritedProperties() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}
@@ -796,7 +796,7 @@ function FavoritedProperties() {
                             paddingLeft: ".5rem",
                             paddingRight: ".5rem",
                             alignSelf: "flex-end"
-                        }}>$2,500</p>
+                        }}>₹2,500</p>
                     </div>
 
                     {/* bottom */}

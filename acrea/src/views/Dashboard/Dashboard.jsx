@@ -111,7 +111,7 @@ function Dashboard() {
                                 margin: ".8rem",
                                 paddingLeft: ".5rem",
                                 paddingRight: ".5rem"
-                            }}>$2,500</p>
+                            }}>₹2,500</p>
                         </div>
                         <div
                             className={Styles.featuredPropertyContainerCardRight}
@@ -216,7 +216,7 @@ function Dashboard() {
                                 margin: ".8rem",
                                 paddingLeft: ".5rem",
                                 paddingRight: ".5rem"
-                            }}>$2,500</p>
+                            }}>₹2,500</p>
                         </div>
                         <div
                             className={Styles.featuredPropertyContainerCardRight}

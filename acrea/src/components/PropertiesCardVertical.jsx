@@ -29,7 +29,7 @@ function PropertiesCardVertical() {
                     paddingLeft: ".5rem",
                     paddingRight: ".5rem",
                     alignSelf: "flex-end"
-                }}>$2,500</p>
+                }}>₹2,500</p>
             </div>
 
             {/* bottom */}

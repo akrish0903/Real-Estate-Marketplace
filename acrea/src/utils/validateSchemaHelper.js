@@ -8,7 +8,7 @@ const validateSchemaHelper = {
     usrPhoneNumber: Yup.string()
         .matches(/^[0-9]+$/, 'Phone number must contain only digits.')
         .min(10, 'Phone number must be at least 10 digits.')
-        .max(15, 'Phone number cannot be more than 15 digits.')
+        .max(10, 'Phone number cannot be more than 15 digits.')
         .required('Phone number is required.'),
     usrPassword: Yup.string()
         .min(6, 'Password must be at least 6 characters.')
