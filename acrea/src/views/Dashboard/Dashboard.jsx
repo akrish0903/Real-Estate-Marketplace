@@ -80,6 +80,38 @@ function Dashboard() {
                     >Add Property</button>
                 </div>
             </div>)}
+            {/*only in agentpage */}
+            {userAuthData.usrType=== 'agent' && (<div className={Styles.optionalAuthCard}>
+                <div
+                    style={{ backgroundColor: Config.color.secondaryColor300 }}
+                    className={Styles.optionalAuthCardRight}
+                >
+                    <p style={{
+                        fontWeight: "bolder",
+                        fontSize: Config.fontSize.medium,
+                        color: Config.color.textColor
+                    }}>For Property Agents</p>
+                    <p style={{
+                        fontSize: Config.fontSize.small,
+                        color: Config.color.textColor
+                    }}>List your properties and reach potential buyers.</p>
+                    <button
+                    onClick={()=>{navigation("/signin")}}
+                        style={{
+                            backgroundColor: Config.color.primaryColor900,
+                            color: Config.color.background,
+                            border: "none",
+                            padding: ".2rem",
+                            paddingLeft: ".8rem",
+                            paddingRight: ".8rem",
+                            borderRadius: "5px",
+                            fontSize: Config.fontSize.regular,
+                            alignSelf: "flex-end",
+                        }}
+                    >Add Property</button>
+                </div>
+            </div>)}
+
 
 
             {/* featured Properties */}
@@ -181,7 +213,8 @@ function Dashboard() {
                                         fontSize: Config.fontSize.small
                                     }}>Boston MA</p>
                                 </div>
-                                <button onClick={()=>{navigation("/PropertyPage")}} style={{
+                                <button onClick={()=>{navigation("/PropertyPage")}}
+                                    style={{
                                     color: Config.color.background,
                                     backgroundColor: Config.color.primaryColor900,
                                     width: "fit-content",
@@ -286,7 +319,8 @@ function Dashboard() {
                                         fontSize: Config.fontSize.small
                                     }}>Boston MA</p>
                                 </div>
-                                <button style={{
+                                <button onClick={()=>{navigation("/PropertyPage")}}
+                                style={{
                                     color: Config.color.background,
                                     backgroundColor: Config.color.primaryColor900,
                                     width: "fit-content",

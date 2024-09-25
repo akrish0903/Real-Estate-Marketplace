@@ -12,6 +12,8 @@ import { useSelector } from 'react-redux'
 import PropertyPage from './views/PropertyPage/PropertyPage'
 import ViewAllProperties from './views/ViewAllProperties/ViewAllProperties'
 import FavoritedProperties from './views/FavoritedProperties/FavoritedProperties'
+import Logout from './views/Logout/Logout';
+import About from './views/About/About';
 // import AddProperty from './views/AddProperty/AddProperty'
 
 function App() {
@@ -30,6 +32,8 @@ function App() {
         <Route path='/FavoritedProperties' element={<FavoritedProperties />} />
         <Route path='/PropertyPage' element={<PropertyPage />} />
         <Route path='/viewAllProperties' element={<ViewAllProperties />} />
+        <Route path='/About' element={<About />} />
+        <Route path="/logout" element={<Logout />} />
         <Route path='/' element={<Dashboard />} />
         <Route path='*' element={<NoPageFound />} />
       </Routes>

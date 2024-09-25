@@ -164,6 +164,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Dropdown_Bootstrap from './Dropdown_Bootstrap';
+import HomeIcon from '@mui/icons-material/Home';
 
 function Header() {
     const navigation = useNavigate();
@@ -172,15 +173,18 @@ function Header() {
 
     const dropdownDataArr = [
         { title: "Edit Account", navigate: "/editProfile" },
-        { title: "My Properties", navigate: "/myProperties" }, // Added navigate path
-        { title: "Favorites", navigate: "/FavoritedProperties" },
+        // Only add "My Properties" if the user is an agent
+        ...(userAuthData.usrType === 'agent' ? [{ title: "My Properties", navigate: "/myProperties" }] : []),
+        ...(userAuthData.usrType === 'buyer' ? [{ title: "Favorites", navigate: "/FavoritedProperties" }] : []),
         { title: "Help Center", navigate: "/help-center" },
         { title: "Logout", navigate: "/logout" },
     ];
 
     const activeLinkStyle = {
         borderBottom: `4px solid ${Config.color.primaryColor1000}`,
+        borderBottomColor:  `${Config.color.primaryColor1000}`,
         color: Config.color.background,
+        textDecoration: 'none'
     };
 
     return (
@@ -209,22 +213,32 @@ function Header() {
             </div>
             <div className={Styles.headerScreenRight}>
                 <div className={Styles.headerScreenRightFirst}>
-                <h6>
-                    <NavLink
+                <h6><NavLink
                         to={"/"}
-                        style={({ isActive }) => (isActive ? activeLinkStyle : { color: Config.color.background })}
+                        style={({ isActive }) => (isActive ? activeLinkStyle : { color: Config.color.background, textDecoration: 'none'})}
                     >
+                        {/* <HomeIcon style={{margin:'auto'}}/> */}
                         HOME
-                    </NavLink></h6>
+                    </NavLink>
+                </h6>
+                {(userAuthData.usrEmail=== null || userAuthData.usrType==='buyer' ) &&
                     <h6>
-                    <NavLink
-                        to="/ViewAllProperties"
-                        style={({ isActive }) => (isActive ? activeLinkStyle : { color: Config.color.background })}
+                        <NavLink
+                            to="/ViewAllProperties"
+                            style={({ isActive }) => (isActive ? activeLinkStyle : { color: Config.color.background, textDecoration: 'none'})}
+                        >
+                            BUY
+                        </NavLink>
+                    </h6>}
+                    {(userAuthData.usrEmail=== null || userAuthData.usrType==='buyer' ) &&
+                    <h6 style={{ color: Config.color.background }}>AGENTS</h6>}
+                    <h6><NavLink
+                        to={"/About"}
+                        style={({ isActive }) => (isActive ? activeLinkStyle : { color: Config.color.background, textDecoration: 'none'})}
                     >
-                        BUY
-                    </NavLink></h6>
-                    <h6 style={{ color: Config.color.background }}>AGENTS</h6>
-                    <h6 style={{ color: Config.color.background }}>ABOUT US</h6>
+                        ABOUT US
+                    </NavLink>
+                </h6>
                 </div>
 
                 <div
