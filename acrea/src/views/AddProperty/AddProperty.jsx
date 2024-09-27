@@ -3,19 +3,20 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Styles from "./css/AddProperty.module.css"
 import { useLocation } from 'react-router-dom';
+import { Config } from '../../config/Config';
 
 
 function AddProperty (){
   return (
-    <div>
+    <div className={`screen ${Styles.addPropertyScreen}`} style={{backgroundColor: Config.color.secondaryColor200}}>
       <Header/>
-    <section>
-      <div className="container">
-        <div className="form-container">
+      <div className={Styles.card1}>      
+         <div className={Styles.formContainer}>
           <form>
-            <h2 className="form-title">Add Property</h2>
-            <div className="form-group">
+            <h2 className={Styles.formTitle}>Add Property</h2>
+            <div className={Styles.formGroup}>
               <label htmlFor="type">Property Type</label>
+              <div className={Styles.formGroup}>
               <select id="type" name="type" required>
                 <option value="Land">Land</option>
                 <option value="Apartment">Apartment</option>
@@ -24,29 +25,32 @@ function AddProperty (){
                 <option value="Other">Other</option>
               </select>
             </div>
-            <div className="form-group">
-              <label htmlFor="name">Listing Name</label>
-              <input type="text" id="name" name="name" placeholder="eg. Beautiful Apartment In Miami" required />
             </div>
-            <div className="form-group">
+            <div className={Styles.formGroup}>
+              <label htmlFor="name">Listing Name</label>
+              <input type="text" id="name" name="name" placeholder="eg. Beautiful Apartment In Mumbai" required />
+            </div>
+            <div className={Styles.formGroup}>
               <label htmlFor="description">Description</label>
               <textarea id="description" name="description" rows="4" placeholder="Add an optional description of your property"></textarea>
             </div>
-            <div className="form-group">
+            <div className={Styles.formGroup}>
               <label htmlFor="square_feet">Square Feet</label>
               <input type="number" id="square_feet" name="square_feet" required />
             </div>
-            <div className="form-group location-group">
+            <div className={Styles.formGroup}>
+              <div  className={Styles.locationGroup }>
               <label>Location</label>
               <input type="text" id="street" name="location.street" placeholder="Street" />
               <input type="text" id="city" name="location.city" placeholder="City" required />
               <input type="text" id="state" name="location.state" placeholder="State" required />
               <input type="text" id="zipcode" name="location.zipcode" placeholder="Zipcode" />
+              </div>
             </div>
 
-            <section className="amenities-section">
+            <div className={Styles.amenitiesSection}>
               <label htmlFor="amenities">Amenities</label>
-              <div className="amenities-grid">
+              <div className={Styles.amenitiesGrid}>
                 <div>
                   <input type="checkbox" id="amenity_wifi" name="amenities" value="Wifi" />
                   <label htmlFor="amenity_wifi">Wifi</label>
@@ -96,30 +100,31 @@ function AddProperty (){
                   <label htmlFor="amenity_air_conditioning">Air Conditioning</label>
                 </div>
               </div>
-            </section>
-            <div className="form-group location-group">
-              <label>Number of (Leave blank if not applicable)</label>
-              <div className="flex-row">
-                <div className="form-group">
-                  <label htmlFor="beds">Beds</label>
-                  <input type="number" id="beds" name="beds" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="baths">Baths</label>
-                  <input type="number" id="baths" name="baths" />
+            </div>
+            <div className={Styles.formGroup}>
+              <div  className={Styles.locationGroup }>
+                <label>Number of (Leave blank if not applicable)</label>
+                <div className={Styles.flexRow}>
+                  <div className={Styles.formGroup}>
+                    <label htmlFor="beds">Beds</label>
+                     <input type="number" id="beds" name="beds" />
+                  </div>
+                  <div className={Styles.formGroup}>
+                     <label htmlFor="baths">Baths</label>
+                     <input type="number" id="baths" name="baths" />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="form-footer">
+            <div className={Styles.formFooter}>
               <label htmlFor="image">Images</label>
               <input type="file" id="image" name="image" />
             </div>
-            <button type="submit" className="submit-btn">Add Property</button>
-            <p className="text-sm">By adding a property, you agree to our terms and conditions.</p>
+            <button type="submit" className={Styles.submitBtn}>Add Property</button>
+            <p className={Styles.textSmallall}>By adding a property, you agree to our terms and conditions.</p>
           </form>
-        </div>
-      </div>
-    </section>
+          </div>
+    </div>
     <Footer/>
     </div>
   );

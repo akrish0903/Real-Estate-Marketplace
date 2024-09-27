@@ -2,7 +2,6 @@ export var Config = {
     color: {
         background: "white",
         textColor: "black",
-        textColor200: "white",
         textColor100: "#4B5563",
         primaryColor1000: "red",
         primaryColor900: "#BC0000",

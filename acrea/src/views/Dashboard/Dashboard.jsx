@@ -96,7 +96,7 @@ function Dashboard() {
                         color: Config.color.textColor
                     }}>List your properties and reach potential buyers.</p>
                     <button
-                    onClick={()=>{navigation("/signin")}}
+                    onClick={()=>{navigation("/AddProperty")}}
                         style={{
                             backgroundColor: Config.color.primaryColor900,
                             color: Config.color.background,

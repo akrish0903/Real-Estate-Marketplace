@@ -34,12 +34,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -157,12 +157,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -280,12 +280,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -403,12 +403,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -526,12 +526,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -649,12 +649,12 @@ function FavoritedProperties() {
                 />
                 <DeleteIcon
                     style={{
-                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                    backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                     position: "absolute",
                     width: "1.5rem",
                     height: "1.5rem",
                     objectFit: "contain",
-                    color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                    color: hovered ? Config.color.background : Config.color.primaryColor900,
                     margin: ".8rem",
                     borderRadius: "5px",
                     transition: "color 0.3s ease", 
@@ -772,12 +772,12 @@ function FavoritedProperties() {
                         />
                         <DeleteIcon
                             style={{
-                            backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.textColor200,
+                            backgroundColor: hovered ? Config.color.primaryColor900 : Config.color.background,
                             position: "absolute",
                             width: "1.5rem",
                             height: "1.5rem",
                             objectFit: "contain",
-                            color: hovered ? Config.color.textColor200 : Config.color.primaryColor900,
+                            color: hovered ? Config.color.background : Config.color.primaryColor900,
                             margin: ".8rem",
                             borderRadius: "5px",
                             transition: "color 0.3s ease", 
