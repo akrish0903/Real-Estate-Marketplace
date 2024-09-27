@@ -170,6 +170,7 @@ function SignIn() {
                       style={{ fontSize: Config.fontSize.regular }}
                       value={values.usrEmail}
                       onBlur={() => { setFieldTouched("usrEmail") }}
+                      onFocus={() => { setFieldTouched("usrEmail", true, true); }}
                       onChange={handleChange("usrEmail")}
                     />
                     {touched.usrEmail && errors.usrEmail && (

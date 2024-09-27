@@ -90,7 +90,6 @@ function PropertiesCardVertical() {
                     </div>
                 </div>
 
-
                 <div className={Styles.featuredPropertyContainerCardRightBottom}>
                     <div style={{ alignItems: "center" }}>
                         <PlaceIcon style={{

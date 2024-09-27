@@ -14,7 +14,7 @@ import ViewAllProperties from './views/ViewAllProperties/ViewAllProperties'
 import FavoritedProperties from './views/FavoritedProperties/FavoritedProperties'
 import Logout from './views/Logout/Logout';
 import About from './views/About/About';
-// import AddProperty from './views/AddProperty/AddProperty'
+import AddProperty from './views/AddProperty/AddProperty'
 
 function App() {
   var authUserDetails = useSelector(data=>data.AuthUserDetailsSlice)
@@ -28,7 +28,7 @@ function App() {
         <Route path='/signup' element={<SIgnUP />} />
         {authUserDetails.usrEmail && (<Route path='/editProfile' element={<EditProfile />} />)}
         
-        {/* <Route path='/AddProperty' element={<AddProperty />} /> */}
+        <Route path='/AddProperty' element={<AddProperty />} />
         <Route path='/FavoritedProperties' element={<FavoritedProperties />} />
         <Route path='/PropertyPage' element={<PropertyPage />} />
         <Route path='/viewAllProperties' element={<ViewAllProperties />} />

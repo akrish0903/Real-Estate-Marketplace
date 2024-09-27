@@ -104,10 +104,9 @@
 }
 
 .error {
-    /* color: red; Or any color of your choice */
-    font-size: 0.8rem; /* Adjust size as needed */
-    margin: 0; /* To reduce space between messages */
-    padding: 0; /* To reduce space */
-    text-align: right; /* Right-align messages */
+    font-size: 0.8rem;
+    margin: 0;
+    padding: 0;
+    text-align: right;
   }
   
