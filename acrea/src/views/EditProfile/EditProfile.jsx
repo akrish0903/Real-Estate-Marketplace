@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../../components/Header';
+import Footer from '../../components/Footer'
 import Styles from "./css/EditProfile.module.css";
 import { Config } from '../../config/Config';
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import useApi from '../../utils/useApi';
 import { AuthUserDetailsSliceAction } from '../../store/AuthUserDetailsSlice';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 function EditProfile() {
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
     var userAuthDetails = useSelector(state => state.AuthUserDetailsSlice);
-    
+
     const dispatch = useDispatch();
     const [userEditObj, setUserEditObj] = useState({
         usrFullName: userAuthDetails.usrFullName,
@@ -19,15 +22,14 @@ function EditProfile() {
         usrMobileNumber: userAuthDetails.usrMobileNumber,
         usrProfileUrl: userAuthDetails.usrProfileUrl,
         userBio: userAuthDetails.userBio,
-        // usrPassword: userAuthDetails.usrPassword
     });
 
     // State for password change
-    // const [passwordChangeObj, setPasswordChangeObj] = useState({
-    //     currentPassword: "",
-    //     newPassword: "",
-    //     confirmNewPassword: "",
-    // });
+    const [passwordChangeObj, setPasswordChangeObj] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+    });
 
     async function editUserDetailsHandler(e) {
         e.preventDefault();
@@ -66,11 +68,15 @@ function EditProfile() {
                 success: {
                     render({ toastProps, closeToast, data }) {
                         dispatch(AuthUserDetailsSliceAction.setUsrEmail(data.user_details.usrEmail));
+                        localStorage.setItem("usrEmail", data.user_details.usrEmail);
                         dispatch(AuthUserDetailsSliceAction.setUsrFullName(data.user_details.usrFullName));
+                        localStorage.setItem("usrFullName", data.user_details.usrFullName);
                         dispatch(AuthUserDetailsSliceAction.setUsrMobileNumber(data.user_details.usrMobileNumber));
+                        localStorage.setItem("usrMobileNumber", data.user_details.usrMobileNumber);
                         dispatch(AuthUserDetailsSliceAction.setUsrProfileUrl(data.user_details.usrProfileUrl));
+                        localStorage.setItem("usrProfileUrl", data.user_details.usrProfileUrl);
                         dispatch(AuthUserDetailsSliceAction.setUserBio(data.user_details.userBio));
-                        
+                        localStorage.setItem("userBio", data.user_details.userBio);
                         return data.message || "Account details updated successfully.";
                     },
                 },
@@ -86,69 +92,70 @@ function EditProfile() {
         }
     }
 
-    // async function changePasswordHandler(f) {
-    //     e.preventDefault();
-    //     const { currentPassword, newPassword, confirmNewPassword } = passwordChangeObj;
+    // Password change handler
+    async function changePasswordHandler(e) {
+        e.preventDefault();
+        const { currentPassword, newPassword, confirmNewPassword } = passwordChangeObj;
 
-    //     if (!currentPassword || !newPassword || !confirmNewPassword) {
-    //         toast.error("Please fill all password fields.", {
-    //             position: 'bottom-right',
-    //             theme: "dark",
-    //         });
-    //         return;
-    //     }
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            toast.error("Please fill all password fields.", {
+                position: 'bottom-right',
+                theme: "dark",
+            });
+            return;
+        }
 
-    //     if (newPassword !== confirmNewPassword) {
-    //         toast.error("New passwords do not match.", {
-    //             position: 'bottom-right',
-    //             theme: "dark",
-    //         });
-    //         return;
-    //     }
+        if (newPassword !== confirmNewPassword) {
+            toast.error("New passwords do not match.", {
+                position: 'bottom-right',
+                theme: "dark",
+            });
+            return;
+        }
 
-    //     const apiCallPromise = new Promise(async (resolve, reject) => {
-    //         const apiResponse = await useApi({
-    //             url: "/changePassword",
-    //             method: "POST",
-    //             authRequired: true,
-    //             authToken: userAuthDetails.usrAccessToken,
-    //             data: {
-    //                 usrPassword: userEditObj.usrPassword,
-    //             },
-    //         });
+        const apiCallPromise = new Promise(async (resolve, reject) => {
+            const apiResponse = await useApi({
+                url: "/resetPassword",
+                method: "POST",
+                authRequired: true,
+                authToken: userAuthDetails.usrAccessToken,
+                data: {
+                    usrPasswordCurrent: passwordChangeObj.currentPassword,
+                    usrPasswordNew:passwordChangeObj.confirmNewPassword,
+                },
+            });
 
-    //         if (apiResponse && apiResponse.error) {
-    //             reject(apiResponse.error.message);
-    //         } else {
-    //             resolve(apiResponse);
-    //         }
-    //     });
+            if (apiResponse && apiResponse.error) {
+                reject(apiResponse.error.message);
+            } else {
+                resolve(apiResponse);
+            }
+        });
 
-    //     await toast.promise(apiCallPromise, {
-    //         pending: "Changing password...",
-    //         success: {
-    //             render({ toastProps, closeToast, data }) {
-    //                 dispatch(AuthUserDetailsSliceAction.setUsrEmail(data.user_details.usrPassword));
-    //                 return data.message || "Password changed successfully.";
-    //             },
-    //         },
-    //         error: {
-    //             render({ toastProps, closeToast, data }) {
-    //                 return data;
-    //             },
-    //         },
-    //     }, {
-    //         position: 'bottom-right',
-    //         theme: "dark",
-    //     });
+        await toast.promise(apiCallPromise, {
+            pending: "Changing password...",
+            success: {
+                render({ toastProps, closeToast, data }) {
+                    return data.message || "Password changed successfully.";
+                },
+            },
+            error: {
+                render({ toastProps, closeToast, data }) {
+                    return data;
+                },
+            },
+        }, {
+            position: 'bottom-right',
+            theme: "dark",
+        });
 
-    //     // Clear password fields after successful change
-    //     setPasswordChangeObj({
-    //         currentPassword: "",
-    //         newPassword: "",
-    //         confirmNewPassword: "",
-    //     });
-    // }
+        // Clear password fields after successful change
+        setPasswordChangeObj({
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: "",
+        });
+    }
 
     return (
         <div className={Styles.editProfileScreen}>
@@ -180,6 +187,7 @@ function EditProfile() {
                     </div>
                     <div className={Styles.editProfileContainerRight}>
                         <form className={Styles.editProfileContainerRightForm}>
+                        <h3>Edit Profile</h3>
                             <input
                                 placeholder='Edit your name.'
                                 type={"text"}
@@ -203,38 +211,68 @@ function EditProfile() {
                         <div className={Styles.editProfileContainerRightButtonsDiv}>
                             <button className="btn btn-primary" onClick={(e) => { editUserDetailsHandler(e) }}>Save</button>
                             <button className="btn btn-danger" onClick={() => navigate("/")}>Cancel</button>
-                        </div>
-                        
+                        </div>  
                     </div>
                 </div>
 
                 {/* Password Change Section */}
-                {/* <div className={Styles.passwordChangeSection}>
+                <div className={Styles.passwordChangeSection}>
                     <h3>Change Password</h3>
                     <form onSubmit={changePasswordHandler} className={Styles.editProfileContainerRightForm}>
-                        <input
-                            type="password"
-                            placeholder="Current Password"
-                            value={passwordChangeObj.currentPassword}
-                            onChange={(f) => setPasswordChangeObj({ ...passwordChangeObj, currentPassword: f.target.value })}
-                            style={{marginTop:'2px'}}
-                        />
-                        <input
-                            type="password"
-                            placeholder="New Password"
-                            value={passwordChangeObj.newPassword}
-                            onChange={(f) => setPasswordChangeObj({ ...passwordChangeObj, newPassword: f.target.value })}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Confirm New Password"
-                            value={passwordChangeObj.confirmNewPassword}
-                            onChange={(f) => setPasswordChangeObj({ ...passwordChangeObj, confirmNewPassword: f.target.value })}
-                        />
-                        <button type="submit" className="btn btn-primary" onClick={(f) => { changePasswordHandler(f) }}>Change Password</button>
+                        <div style={{
+                            alignItems: "center",
+                            justifyContent: "right"
+                        }}>
+                            <div style={{ flexDirection: 'column' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Current Password"
+                                    value={passwordChangeObj.currentPassword}
+                                    onChange={(e) => setPasswordChangeObj({ ...passwordChangeObj, currentPassword: e.target.value })}
+                                    style={{marginTop:'2px'}}
+                                />
+                            </div>
+                            <RemoveRedEyeIcon onClick={() => { setShowPassword(!showPassword) }} 
+                                className={Styles.screenRightContainerMidFormEyeIcon}
+                                style={{ cursor: 'pointer' }}/>
+                        </div>
+                        <div style={{
+                            alignItems: "center",
+                            justifyContent: "right"
+                        }}>
+                            <div style={{ flexDirection: 'column' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="New Password"
+                                    value={passwordChangeObj.newPassword}
+                                    onChange={(e) => setPasswordChangeObj({ ...passwordChangeObj, newPassword: e.target.value })}
+                                />
+                            </div>
+                            <RemoveRedEyeIcon onClick={() => { setShowPassword(!showPassword) }} 
+                                className={Styles.screenRightContainerMidFormEyeIcon}
+                                style={{ cursor: 'pointer' }}/>
+                        </div>
+                        <div style={{
+                            alignItems: "center",
+                            justifyContent: "right"
+                        }}>
+                            <div style={{ flexDirection: 'column' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Confirm New Password"
+                                    value={passwordChangeObj.confirmNewPassword}
+                                    onChange={(e) => setPasswordChangeObj({ ...passwordChangeObj, confirmNewPassword: e.target.value })}
+                                />
+                            </div>
+                            <RemoveRedEyeIcon onClick={() => { setShowPassword(!showPassword) }} 
+                                className={Styles.screenRightContainerMidFormEyeIcon}
+                                style={{ cursor: 'pointer' }}/>
+                        </div>
+                        <button type="submit" className="btn btn-primary" onClick={(e) => { changePasswordHandler(e) }}>Change Password</button>
                     </form>
-                </div> */}
+                </div>
             </div>
+            <Footer/>
         </div>
     );
 }

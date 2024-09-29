@@ -54,14 +54,6 @@ const signupUserAuthController = async (req, res, next) => {
 
 };
 
-
-
-
-
-
-
-
-
 // Get all users
 const signinUserAuthController = async (req, res, next) => {
     const { usrEmail, usrPassword } = req.body;
@@ -135,6 +127,26 @@ const updateUserProfileAuthController = async function (req, res, next) {
     }
 }
 
+const resetPasswordAuthController = async function (req, res, next) {
+    var { usrPasswordCurrent, usrPasswordNew } = req.body;
+    var { aud: userId } = req.payload;
+    try {
+        var fetchedUserData = await UserAuthModel.findById(userId);
+        var oldPassRes = await fetchedUserData.isValidPassword(usrPasswordCurrent);
+        if (oldPassRes === false) {
+            next(httpErrors.Unauthorized("Current password is wrong."))
+        } else {
+            fetchedUserData.usrPassword = usrPasswordNew;
+            var updatedFetchedUser = await fetchedUserData.save();
+            console.log(updatedFetchedUser);
+            res.status(201).json({ message: "User password updated success." })
+        }
+        console.log(oldPassRes)
+    } catch (error) {
+        next(httpErrors.InternalServerError("Error updating profile."))
+    }
+}
+
 const refreshTokenUserAuthController = async function (req, res, next) {
     try {
         const { user_refresh_token } = req.body;
@@ -150,8 +162,6 @@ const refreshTokenUserAuthController = async function (req, res, next) {
         next(error)
     }
 }
-
-
 
 const logoutUserAuthController = async (req, res, next) => {
 
@@ -179,4 +189,4 @@ const logoutUserAuthController = async (req, res, next) => {
         next(error)
     }
 }
-module.exports = { signupUserAuthController, signinUserAuthController, updateUserProfileAuthController, refreshTokenUserAuthController, logoutUserAuthController };
+module.exports = { signupUserAuthController, signinUserAuthController, updateUserProfileAuthController, resetPasswordAuthController, refreshTokenUserAuthController, logoutUserAuthController };

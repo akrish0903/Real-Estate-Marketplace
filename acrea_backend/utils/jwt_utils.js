@@ -88,7 +88,7 @@ module.exports = {
                 try {
                     var redisClientRes = await redis_client.get(userId)
                 } catch (error) {
-                    console.log(err);
+                    console.log(error);
                     reject(httpErrors.InternalServerError());
                 }
                 if (refreshToken === redisClientRes) {
