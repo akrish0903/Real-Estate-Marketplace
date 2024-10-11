@@ -419,10 +419,6 @@ const deleteAgentProfileAuthController = async (req, res, next) => {
     }
 };
 
-
-
-
-
 module.exports = { signupUserAuthController, signinUserAuthController, updateUserProfileAuthController,
     resetPasswordAuthController, refreshTokenUserAuthController, logoutUserAuthController,
     forgotPasswordAuthController, showBuyerListController, showAgentListController,

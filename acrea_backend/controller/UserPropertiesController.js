@@ -1,3 +1,4 @@
+//acrea_backend/controller/UserPropertiesController.js
 const UserAuthModel = require("../models/UserAuthModel");
 const UserPropertiesModel = require("../models/UserPropertiesModel");
 const httpErrors = require("http-errors");
@@ -189,4 +190,6 @@ const showAgentPropertyController = async (req, res, next) => {
     }
 };
 
-module.exports = { addPropertyController, showBuyerFourRecentPropertyController, showBuyerTwoFeaturesPropertyController, showBuyerPropertyController, showAdimFourRecentPropertyController, showAgentRecentPropertyController, showAgentPropertyController }
+module.exports = { addPropertyController, showBuyerFourRecentPropertyController, showBuyerTwoFeaturesPropertyController,
+     showBuyerPropertyController, showAdimFourRecentPropertyController, showAgentRecentPropertyController,
+     showAgentPropertyController }

@@ -175,7 +175,7 @@ a {
   margin-left: auto;
 }
 
-.favoriteButton {
+/* .favoriteButton {
   background-color: #1e3a8a;
   color: white;
   padding: 1rem;
@@ -189,7 +189,7 @@ a {
 
 .favoriteButton:hover {
   background-color: #0e2a6b;
-}
+} */
 
 /* Contact Form */
 .contactFormSection {
@@ -270,4 +270,39 @@ a {
 }
 .btn:hover{
   background-color: rgb(0, 0, 128);
+}
+
+.chatButton {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+}
+.favoriteButton {
+  background-color: #0066ff; 
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 28rem;
+  margin-bottom: 1rem;
+  gap: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.favoriteButton:hover {
+  background-color: #0055cc;
+}
+
+.favorited {
+  background-color: #FFD700 !important;
+  cursor: not-allowed;
 }
