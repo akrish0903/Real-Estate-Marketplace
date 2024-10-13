@@ -20,7 +20,6 @@ import ViewAllProperties from './views/ViewAllProperties/ViewAllProperties'
 import BuyerList from './views/UsersList/BuyerList'
 import AgentList from './views/UsersList/AgentList'
 import { AuthUserDetailsSliceAction } from './store/AuthUserDetailsSlice'
-import Chat from './views/Chat/Chat'
 
 function App() {
   var authUserDetails = useSelector(data => data.AuthUserDetailsSlice)
@@ -55,8 +54,8 @@ function App() {
 
         {authUserDetails.usrType === "admin" && (<Route path='/BuyerList' element={<BuyerList />} />)}
         {authUserDetails.usrType === "admin" && (<Route path='/AgentList' element={<AgentList />} />)}
+        {authUserDetails.usrType === "admin" && (<Route path='/EditProperty' element={<EditProperty /> }/>)}
         
-        <Route path='/Chat' element={<Chat />} />
         <Route path='/FavoritedProperties' element={<FavoritedProperties />} />
         <Route path='/PropertyPage' element={<PropertyPage />} />
         <Route path='/viewAllProperties' element={<ViewAllProperties />} />

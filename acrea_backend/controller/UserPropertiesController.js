@@ -1,4 +1,3 @@
-//acrea_backend/controller/UserPropertiesController.js
 const UserAuthModel = require("../models/UserAuthModel");
 const UserPropertiesModel = require("../models/UserPropertiesModel");
 const httpErrors = require("http-errors");
@@ -56,7 +55,7 @@ const showBuyerFourRecentPropertyController = async (req, res, next) => {
     var { limit } = req.body;
     var fetchedUserData = await UserAuthModel.findById(userId);
 
-    if (fetchedUserData.usrType === "buyer"  || fetchedUserData.usrType === null) {
+    if (fetchedUserData.usrType === "buyer" || fetchedUserData.usrType === null) {
 
         try {
             const usrPropertiesArr = limit
@@ -102,26 +101,6 @@ const showBuyerTwoFeaturesPropertyController = async (req, res, next) => {
     }
 }
 
-
-const showBuyerPropertyController = async (req, res, next) => {
-
-    var userId = req.payload.aud;
-    var { limit } = req.body;
-    var fetchedUserData = await UserAuthModel.findById(userId);
-
-    if (fetchedUserData.usrType === "buyer") {
-        try {
-            const usrPropertiesArr = await UserPropertiesModel.find().sort({ usrPropertyTime: -1 });
-            res.status(200).json({
-                message: "All property records fetched successfully.",
-                user_property_arr: usrPropertiesArr
-            });
-        } catch (error) {
-            next(httpErrors.BadRequest())
-        }
-    }
-}
-
 const showAdimFourRecentPropertyController = async (req, res, next) => {
 
     var userId = req.payload.aud;
@@ -146,10 +125,10 @@ const showAgentRecentPropertyController = async (req, res, next) => {
     var userId = req.payload.aud;
     var { limit } = req.body;
     var fetchedUserData = await UserAuthModel.findById(userId);
-    
+
     try {
         if (fetchedUserData.usrType === "agent") {
-            const  agentId  = userId;
+            const agentId = userId;
             const usrPropertiesArr = limit
                 ? await UserPropertiesModel.find({ agentId }).sort({ usrPropertyTime: -1 }).limit(limit)
                 : await UserPropertiesModel.find({ agentId }).sort({ usrPropertyTime: -1 });
@@ -166,30 +145,230 @@ const showAgentRecentPropertyController = async (req, res, next) => {
     }
 };
 
-const showAgentPropertyController = async (req, res, next) => {
-    var userId = req.payload.aud;
-    var { limit } = req.body;
-    var fetchedUserData = await UserAuthModel.findById(userId);
-    
+const showByTypeAgentPropertyController = async (req, res, next) => {
+    const userId = req.payload.aud;
+    const { type, searchText } = req.body; // Capture both type and searchText
+    const fetchedUserData = await UserAuthModel.findById(userId);
+
     try {
         if (fetchedUserData.usrType === "agent") {
-            const agentId = userId;
-            const usrPropertiesArr = limit
-                ? await UserPropertiesModel.find({ agentId }).sort({ usrPropertyTime: -1 })
-                : await UserPropertiesModel.find({ agentId }).sort({ usrPropertyTime: -1 });
+            let query = { agentId: userId };
+
+            // Add filtering by type
+            if (type && type !== 'All') {
+                query.userListingType = type;
+            }
+
+            // Add filtering by searchText (if provided)
+            if (searchText) {
+                query = {
+                    ...query,
+                    $or: [
+                        { usrListingName: { $regex: searchText, $options: 'i' } }, // Case-insensitive match for name
+                        { "location.street": { $regex: searchText, $options: 'i' } },
+                        { "location.city": { $regex: searchText, $options: 'i' } },
+                        { "location.state": { $regex: searchText, $options: 'i' } },
+                        { "location.pinCode": { $regex: searchText, $options: 'i' } }
+                    ]
+                };
+            }
+
+            const usrPropertiesArr = await UserPropertiesModel.find(query).sort({ usrPropertyTime: -1 });
 
             res.status(200).json({
-                message: "All property records fetched successfully.",
+                message: "Properties fetched successfully based on the type and search.",
                 user_property_arr: usrPropertiesArr
             });
         } else {
-            return next(httpErrors.Unauthorized("You are not authorized to view these properties."));
+            return next(httpErrors.Unauthorized("Unauthorized access."));
         }
     } catch (error) {
+        console.error("Error fetching agent properties:", error); // Add logging
+        next(httpErrors.BadRequest("Failed to fetch properties"));
+    }
+};
+
+const showByTypeBuyerPropertyController = async (req, res, next) => {
+    const userId = req.payload.aud;
+    const { type, searchText } = req.body; // Capture both type and searchText
+    const fetchedUserData = await UserAuthModel.findById(userId);
+
+    try {
+        if (fetchedUserData.usrType === "buyer") {
+            let query = {}; // Remove buyerId filter
+
+            // Add filtering by type
+            if (type && type !== 'All') {
+                query.userListingType = type;
+            }
+
+            // Add filtering by searchText (if provided)
+            if (searchText) {
+                query = {
+                    ...query,
+                    $or: [
+                        { usrListingName: { $regex: searchText, $options: 'i' } }, // Case-insensitive match for name
+                        { "location.street": { $regex: searchText, $options: 'i' } },
+                        { "location.city": { $regex: searchText, $options: 'i' } },
+                        { "location.state": { $regex: searchText, $options: 'i' } },
+                        { "location.pinCode": { $regex: searchText, $options: 'i' } }
+                    ]
+                };
+            }
+
+            const usrPropertiesArr = await UserPropertiesModel.find(query).sort({ usrPropertyTime: -1 });
+
+            res.status(200).json({
+                message: "Properties fetched successfully based on the type and search.",
+                user_property_arr: usrPropertiesArr
+            });
+        } else {
+            return next(httpErrors.Unauthorized("Unauthorized access."));
+        }
+    } catch (error) {
+        console.error("Error fetching buyer properties:", error); // Add logging
+        next(httpErrors.BadRequest("Failed to fetch properties"));
+    }
+};
+
+
+const showByTypeAdminPropertyController = async (req, res, next) => {
+    const userId = req.payload.aud;
+    const { type, searchText } = req.body; // Capture both type and searchText
+    const fetchedUserData = await UserAuthModel.findById(userId);
+
+    try {
+        if (fetchedUserData.usrType === "admin") {
+            let query = {}; // Remove adminId filter
+
+            // Add filtering by type
+            if (type && type !== 'All') {
+                query.userListingType = type;
+            }
+
+            // Add filtering by searchText (if provided)
+            if (searchText) {
+                query = {
+                    ...query,
+                    $or: [
+                        { usrListingName: { $regex: searchText, $options: 'i' } }, // Case-insensitive match for name
+                        { "location.street": { $regex: searchText, $options: 'i' } },
+                        { "location.city": { $regex: searchText, $options: 'i' } },
+                        { "location.state": { $regex: searchText, $options: 'i' } },
+                        { "location.pinCode": { $regex: searchText, $options: 'i' } }
+                    ]
+                };
+            }
+
+            const usrPropertiesArr = await UserPropertiesModel.find(query).sort({ usrPropertyTime: -1 });
+
+            res.status(200).json({
+                message: "Properties fetched successfully based on the type and search.",
+                user_property_arr: usrPropertiesArr
+            });
+        } else {
+            return next(httpErrors.Unauthorized("Unauthorized access."));
+        }
+    } catch (error) {
+        console.error("Error fetching admin properties:", error); // Add logging
+        next(httpErrors.BadRequest("Failed to fetch properties"));
+    }
+};
+
+const editPropertyController = async (req, res) => {
+    const agentId = req.payload.aud;
+    const {
+        userId,
+        usrListingName,
+        usrListingDescription,
+        usrListingSquareFeet,
+        location,
+        usrAmenities,
+        usrExtraFacilities,
+        usrPrice,
+        userListingImage,
+        userListingType
+    } = req.body;
+
+    try {
+        var fetchedUserData = await UserAuthModel.findById(agentId);
+        
+        if (fetchedUserData.usrType === "agent") {
+            const property = await UserPropertiesModel.findOne({ _id: userId, agentId });
+            console.log(property);
+            if (!property) {
+                return res.status(404).json({ message: "Property not found." });
+            } else {
+                property.usrListingName = usrListingName || property.usrListingName;
+                property.usrListingDescription = usrListingDescription || property.usrListingDescription;
+                property.usrListingSquareFeet = usrListingSquareFeet || property.usrListingSquareFeet;
+                property.location = location || property.location;
+                property.usrAmenities = usrAmenities || property.usrAmenities;
+                property.usrExtraFacilities = usrExtraFacilities || property.usrExtraFacilities;
+                property.usrPrice = usrPrice || property.usrPrice;
+                property.userListingImage = userListingImage || property.userListingImage;
+                property.userListingType = userListingType || property.userListingType;
+                
+                // Save the updated property
+                var savedUserDetails = await property.save();
+
+                res.status(200).json({
+                    message: "Property updated successfully.",
+                    property_details: savedUserDetails,
+                });
+            }
+        } else {
+            next(httpErrors.Unauthorized("Invalid UserType"))
+        }
+
+
+    } catch (error) {
+        console.error("Error updating property:", error);
+        res.status(500).json({ message: "Failed to update property. Please try again." });
+    }
+};
+
+
+
+const showAllUsersFourRecentPropertyController = async (req, res, next) => {
+    var { limit } = req.body;
+    try {
+        const usrPropertiesArr = limit ?
+            await UserPropertiesModel.find().sort({ usrPropertyTime: -1 }).limit(limit)
+            : await UserPropertiesModel.find().sort({ usrPropertyTime: -1 });
+        res.status(200).json({
+            message: "Property record fetched success.",
+            user_property_arr: usrPropertiesArr
+        });
+    } catch (error) {
+        next(httpErrors.BadRequest())
+    }
+}
+
+
+
+const showAllUsersTwoFeaturesPropertyController = async (req, res, next) => {
+    var { limit } = req.body;
+    try {
+        // Fetch the two properties with the highest price, sorting by usrPrice in descending order
+        const topProperties = limit
+            ? await UserPropertiesModel.find().sort({ usrPrice: -1 }).limit(limit)
+            : await UserPropertiesModel.find().sort({ usrPrice: -1 });
+
+        console.log("Fetched properties (sorted by price):", topProperties); // Debugging log
+
+        res.status(200).json({
+            message: "Top properties fetched successfully.",
+            user_property_arr: topProperties
+        });
+    } catch (error) {
+        console.error("Error fetching top properties: ", error);
         next(httpErrors.BadRequest());
     }
 };
 
-module.exports = { addPropertyController, showBuyerFourRecentPropertyController, showBuyerTwoFeaturesPropertyController,
-     showBuyerPropertyController, showAdimFourRecentPropertyController, showAgentRecentPropertyController,
-     showAgentPropertyController }
+module.exports = {
+    addPropertyController, showBuyerFourRecentPropertyController, showBuyerTwoFeaturesPropertyController,
+    showAdimFourRecentPropertyController, showAgentRecentPropertyController, showByTypeAgentPropertyController,
+    showByTypeBuyerPropertyController, showByTypeAdminPropertyController, editPropertyController, showAllUsersFourRecentPropertyController, showAllUsersTwoFeaturesPropertyController
+}
