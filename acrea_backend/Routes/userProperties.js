@@ -28,17 +28,19 @@ router.post("/show-allUsers-four-recent-properties", UserPropertiesController.sh
 // show all users two feature properties in Dashboard.
 router.post("/show-allUsers-two-feature-properties", UserPropertiesController.showAllUsersTwoFeaturesPropertyController)
 
-
 //show all agent's properties and fillter if needed in ViewAllProperties page
 router.post("/show-by-type-agent-properties", jwt_verify_token, UserPropertiesController.showByTypeAgentPropertyController);
 
 //shows all properties and fillter if needed to buyers in ViewAllProperties page
 router.post("/show-by-type-buyer-properties", jwt_verify_token, UserPropertiesController.showByTypeBuyerPropertyController);
 
-
 //shows all properties and fillter if needed to admin in ViewAllProperties page
 router.post("/show-by-type-admin-properties", jwt_verify_token, UserPropertiesController.showByTypeAdminPropertyController);
 
+//shows all properties and fillter if needed to people before login in ViewAllProperties page
+router.post('/show-by-type-all-user-properties', UserPropertiesController.showByTypeAllUserPropertyController)
+
+// To edit property redirect to EditProperty Page
 router.post("/edit-property", jwt_verify_token, UserPropertiesController.editPropertyController);
 
 

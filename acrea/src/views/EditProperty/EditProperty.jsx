@@ -37,6 +37,23 @@ function EditProperty() {
     userListingImage: propertyData.userListingImage
   });
 
+  // useEffect(() => {
+  //   if (propertyId) {
+  //     const fetchPropertyDetails = async () => {
+  //       try {
+  //         const response = await axios.get(`${Config.apiBaseUrl}/properties/${propertyId}`, {
+  //           headers: { 'Authorization': `Bearer ${authUserDetails.authToken}` }
+  //         });
+  //         setUsrProperty(response.data);
+  //       } catch (error) {
+  //         console.error("Error fetching property details:", error);
+  //         toast.error("Failed to load property details");
+  //       }
+  //     };
+  //     fetchPropertyDetails();
+  //   }
+  // }, []);
+
   const editPropertyHandler = async (e) => {
     e.preventDefault();
 
