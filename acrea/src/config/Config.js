@@ -36,6 +36,8 @@ export var Config = {
         logo2: "/assets/logo2.png",
         logo3: "/assets/logo3.png",
         user_null: "/assets/user_null.png",
+        error404:"/assets/404error.gif",
+        loading:"/assets/loading.gif",
 
     },
     apiBaseUrl: 'http://localhost:4500',

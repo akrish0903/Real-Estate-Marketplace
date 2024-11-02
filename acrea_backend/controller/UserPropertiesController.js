@@ -1,5 +1,6 @@
 const UserAuthModel = require("../models/UserAuthModel");
 const UserPropertiesModel = require("../models/UserPropertiesModel");
+const UserFavoritePropertiesModel = require("../models/UserFavoritePropertiesModel");
 const httpErrors = require("http-errors");
 
 const addPropertyController = async (req, res, next) => {
@@ -55,7 +56,7 @@ const showBuyerFourRecentPropertyController = async (req, res, next) => {
     var { limit } = req.body;
     var fetchedUserData = await UserAuthModel.findById(userId);
 
-    if (fetchedUserData.usrType === "buyer" || fetchedUserData.usrType === null) {
+    if (fetchedUserData.usrType === "buyer") {
 
         try {
             const usrPropertiesArr = limit
@@ -335,7 +336,6 @@ const editPropertyController = async (req, res, next) => {
     }
 };
 
-
 const showAllUsersFourRecentPropertyController = async (req, res, next) => {
     var { limit } = req.body;
     try {
@@ -401,9 +401,71 @@ const showByTypeAllUserPropertyController = async (req, res, next) => {
    }
 };
 
+const toggleFavoriteController = async (req, res, next) => {
+    const userId = req.payload.aud;  // Assuming JWT payload contains the user ID
+    const { propertyId } = req.body;
+
+    try {
+        // Fetch user data
+        const fetchedUserData = await UserAuthModel.findById(userId);
+        if (fetchedUserData.usrType !== "buyer") {
+            return next(httpErrors.Unauthorized("Only buyers can favorite properties"));
+        }
+
+        // Check if the property is already favorited
+        const favorite = await UserFavoritePropertiesModel.findOne({ buyerId: userId, propertyId });
+
+        if (favorite) {
+            // If found, remove it from favorites
+            await UserFavoritePropertiesModel.deleteOne({ buyerId: userId, propertyId });
+            res.status(200).json({ message: "Property removed from favorites" });
+        } else {
+            // Otherwise, add it to favorites
+            const newFavorite = new UserFavoritePropertiesModel({ buyerId: userId, propertyId });
+            await newFavorite.save();
+            res.status(200).json({ message: "Property added to favorites" });
+        }
+    } catch (error) {
+        next(httpErrors.InternalServerError("Error toggling favorite property"));
+    }
+};
+
+const showFavoriteController = async (req, res, next) => {
+    const buyerId = req.payload.aud;
+    try {
+        const fetchedUserData = await UserAuthModel.findById(buyerId);
+        if (fetchedUserData.usrType !== "buyer") {
+            return next(httpErrors.Unauthorized("Only buyers can view favorite properties"));
+        }
+
+        // Find all favorite properties for the buyer
+        const favoriteProperties = await UserFavoritePropertiesModel.find({ buyerId });
+
+        // Extract property IDs
+        const propertyIds = favoriteProperties.map(favorite => favorite.propertyId);
+
+        // Fetch full property details from UserPropertiesModel
+        const favoritedPropertiesDetails = await UserPropertiesModel.find({
+            '_id': { $in: propertyIds }
+        });
+
+        console.log("Favorited Properties Details:", JSON.stringify(favoritedPropertiesDetails, null, 2));
+
+        res.status(200).json({
+            message: "Favorited Property records fetched successfully.",
+            user_fav_property_arr: favoritedPropertiesDetails
+        });
+    } catch (error) {
+        console.error("Error fetching favorite properties:", error);
+        next(httpErrors.InternalServerError("Error fetching favorite properties"));
+    }
+};
+
+
 module.exports = {
     addPropertyController, showBuyerFourRecentPropertyController, showBuyerTwoFeaturesPropertyController,
     showAdimFourRecentPropertyController, showAgentRecentPropertyController, showByTypeAgentPropertyController,
     showByTypeBuyerPropertyController, showByTypeAdminPropertyController, editPropertyController,
-    showAllUsersFourRecentPropertyController, showAllUsersTwoFeaturesPropertyController, showByTypeAllUserPropertyController
+    showAllUsersFourRecentPropertyController, showAllUsersTwoFeaturesPropertyController, showByTypeAllUserPropertyController,
+    toggleFavoriteController, showFavoriteController
 }

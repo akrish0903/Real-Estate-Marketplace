@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import useApi from '../../utils/useApi';
+import { useFormik } from 'formik';
+import propertyValidationSchema from '../../utils/propertyValidationSchema';
 
 function EditProperty() {
   const authUserDetails = useSelector(data => data.AuthUserDetailsSlice);
@@ -36,23 +38,6 @@ function EditProperty() {
     usrPrice: propertyData.usrPrice,
     userListingImage: propertyData.userListingImage
   });
-
-  // useEffect(() => {
-  //   if (propertyId) {
-  //     const fetchPropertyDetails = async () => {
-  //       try {
-  //         const response = await axios.get(`${Config.apiBaseUrl}/properties/${propertyId}`, {
-  //           headers: { 'Authorization': `Bearer ${authUserDetails.authToken}` }
-  //         });
-  //         setUsrProperty(response.data);
-  //       } catch (error) {
-  //         console.error("Error fetching property details:", error);
-  //         toast.error("Failed to load property details");
-  //       }
-  //     };
-  //     fetchPropertyDetails();
-  //   }
-  // }, []);
 
   const editPropertyHandler = async (e) => {
     e.preventDefault();
@@ -147,9 +132,6 @@ function EditProperty() {
         console.log("Sign in err ---> ", error);
       }
     }
-
-
-
   };
 
   const handleAmenityChange = (e) => {
@@ -299,9 +281,37 @@ function EditProperty() {
             {/* Amenities */}
             <div className={Styles.amenitiesSection}>
               <label>Amenities</label>
+              <div className={Styles.selectAllContainer}>
+                <input
+                  type="checkbox"
+                  id="selectAllAmenities"
+                  onChange={(e) => {
+                    const isChecked = e.target.checked;
+                    if (isChecked) {
+                      setUsrProperty((prevState) => ({
+                        ...prevState,
+                        usrAmenities: [
+                          'Wifi', 'Full Kitchen', 'Washer & Dryer', 'Free Parking', 
+                          'Swimming Pool', 'Hot Tub', '24/7 Security', 'Wheelchair Accessible', 
+                          'Elevator Access', 'Dishwasher', 'Gym/Fitness Center', 'Air Conditioning'
+                        ]
+                      }));
+                    } else {
+                      setUsrProperty((prevState) => ({
+                        ...prevState,
+                        usrAmenities: []
+                      }));
+                    }
+                  }}
+                  checked={usrProperty.usrAmenities.length === 12}
+                />
+                <label htmlFor="selectAllAmenities" className={Styles.selectAllLabel}>Select All</label>
+              </div>
+
+              {/* Individual Amenities Checkboxes */}
               <div className={Styles.amenitiesGrid}>
                 {['Wifi', 'Full Kitchen', 'Washer & Dryer', 'Free Parking', 'Swimming Pool', 'Hot Tub', '24/7 Security', 'Wheelchair Accessible', 'Elevator Access', 'Dishwasher', 'Gym/Fitness Center', 'Air Conditioning'].map((amenity) => (
-                  <div key={amenity}>
+                  <div className={Styles.amenityItem} key={amenity}>
                     <input
                       type="checkbox"
                       id={`amenity_${amenity}`}
@@ -310,11 +320,12 @@ function EditProperty() {
                       checked={usrProperty.usrAmenities.includes(amenity)}
                       onChange={handleAmenityChange}
                     />
-                    <label htmlFor={`amenity_${amenity}`}>{amenity}</label>
+                    <label htmlFor={`amenity_${amenity}`} className={Styles.amenityLabel}>{amenity}</label>
                   </div>
                 ))}
               </div>
             </div>
+
 
             {/* Extra Facilities */}
             <div className={Styles.formGroup}>
@@ -358,6 +369,17 @@ function EditProperty() {
                 required
               />
             </div>
+            <div className={Styles.formGroup}>
+              <label htmlFor="image">Images</label>
+              <br/>
+              <input
+                type="text"
+                id="image"
+                name="image"
+                value={usrProperty.userListingImage}
+                onChange={(e) => setUsrProperty({ ...usrProperty, userListingImage: e.target.value })} />
+            </div>
+
 
             {/* Submit Button */}
             <div className={Styles.formGroup}>
