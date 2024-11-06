@@ -1,6 +1,10 @@
 const redis = require("redis");
 
-const redisUrl = `redis://${process.env.REDIS_HOST || "127.0.0.1"}:${process.env.REDIS_PORT || 6379}`;
+// Use environment variables directly, with a proper fallback to 127.0.0.1
+const redisHost = process.env.REDIS_HOST || "127.0.0.1";
+const redisPort = process.env.REDIS_PORT || 6379;
+const redisUrl = `redis://${redisHost}:${redisPort}`;
+
 const redis_client = redis.createClient({ url: redisUrl });
 
 redis_client.connect()
