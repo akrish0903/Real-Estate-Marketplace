@@ -5,12 +5,12 @@ footer {
     margin-top: auto;
     position: relative;
     padding: 16px;
-    background-color: #f5f7fa; /* Light gray background */
-    border-top: 1px solid #e5e7eb; /* Border at the top */
+    background-color: #f5f7fa;
+    border-top: 1px solid #e5e7eb;
   }
   
   footer a {
-    color:#BC0000; /* Red color for links */
+    color:#BC0000;
     text-decoration: none;
   }
   
@@ -18,9 +18,9 @@ footer {
     text-decoration: underline;
   }
   
-  footer img {
-    width: 1rem; /* Icon size */
-    height: 1rem;
-    margin-right: 8px; /* Space between icon and text */
+.ftimg {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 8px;
   }
   
