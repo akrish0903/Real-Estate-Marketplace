@@ -1,19 +1,28 @@
-const redis = require("redis");
+import { createClient } from 'redis';
 
-let redis_client;
-try {
-    redis_client = redis.createClient({
-        socket: {
-            host: process.env.REDIS_HOST,
-            port: process.env.REDIS_PORT,
-            family: 4,
-        },
-    });
-    redis_client.connect()
-        .then(() => console.log("Redis connected"))
-        .catch((err) => console.log("Redis connection failed: ", err));
-} catch (error) {
-    console.error("Redis initialization failed:", error);
-}
+const client = createClient({
+    password: 'YzZGagaY0MGSRwMexynARrwf6bnjzUMO', // Your Redis instance password
+    socket: {
+        host: 'redis-18923.c301.ap-south-1-1.ec2.redns.redis-cloud.com', // Redis host URL
+        port: 18923 // Redis port number
+    }
+});
 
-module.exports = redis_client;
+// Event listeners for connection monitoring
+client.on("connect", () => console.log("Redis client connecting..."));
+client.on("ready", () => console.log("Redis client connected and ready to use"));
+client.on("error", (err) => console.error("Redis connection error:", err));
+client.on("end", () => console.log("Redis client disconnected"));
+
+// Connect to Redis
+client.connect()
+    .then(() => console.log("Connected to Redis successfully"))
+    .catch((err) => console.error("Error connecting to Redis:", err));
+
+process.on("SIGINT", () => {
+    client.quit();
+    console.log("Redis client disconnected through app termination");
+    process.exit(0);
+});
+
+export default client;
