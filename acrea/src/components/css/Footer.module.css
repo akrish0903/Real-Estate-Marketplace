@@ -19,8 +19,8 @@ footer {
   }
   
   footer img {
-    width: 24px; /* Icon size */
-    height: 24px;
+    width: 1rem; /* Icon size */
+    height: 1rem;
     margin-right: 8px; /* Space between icon and text */
   }
   

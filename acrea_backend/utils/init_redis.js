@@ -1,9 +1,11 @@
+require('dotenv').config(); // Load environment variables
 const { createClient } = require('redis');
 
 const redis_client = createClient({
-    url: 'rediss://red-csm64r8gph6c73addhgg:za1UCzlG8j4vwJDScNorSd1GJ10tHtRM@singapore-redis.render.com:6379', // Redis connection URL
+    password: process.env.REDIS_PASSWORD, // Use Redis password from .env
     socket: {
-        tls: true // Enable TLS
+        host: process.env.REDIS_HOST, // Use Redis host from .env
+        port: process.env.REDIS_PORT // Use Redis port from .env
     }
 });
 
