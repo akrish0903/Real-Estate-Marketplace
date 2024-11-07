@@ -35,7 +35,7 @@ export var Config = {
         logo: "/assets/logo.png",
         logo2: "/assets/logo2.png",
         logo3: "/assets/logo3.png",
-        logo4:"/acrea/public/assets/logo4.png",
+        logo4:"/assets/logo4.png",
         user_null: "/assets/user_null.png",
         error404:"/assets/404error.gif",
         loading:"/assets/loading.gif",

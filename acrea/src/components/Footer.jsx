@@ -13,7 +13,7 @@ return(
         }}>
           {/* Left Section */}
           <NavLink to={"/"}>
-          <div className="flex items-center">
+          <div >
             <img src={Config.imagesPaths.logo4} alt="Icon" className={Styles.ftimg} />
           </div>
           </NavLink>
