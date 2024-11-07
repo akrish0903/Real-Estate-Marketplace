@@ -1,10 +1,9 @@
 const { createClient } = require('redis');
 
 const redis_client = createClient({
-    password: 'YzZGagaY0MGSRwMexynARrwf6bnjzUMO', // Redis instance password
+    url: 'rediss://red-csm64r8gph6c73addhgg:za1UCzlG8j4vwJDScNorSd1GJ10tHtRM@singapore-redis.render.com:6379', // Redis connection URL
     socket: {
-        host: 'redis-18923.c301.ap-south-1-1.ec2.redns.redis-cloud.com', // Redis host URL
-        port: 18923 // Redis port number
+        tls: true // Enable TLS
     }
 });
 
