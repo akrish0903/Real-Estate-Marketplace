@@ -1,7 +1,7 @@
-import { createClient } from 'redis';
+const { createClient } = require('redis');
 
 const redis_client = createClient({
-    password: 'YzZGagaY0MGSRwMexynARrwf6bnjzUMO', // Your Redis instance password
+    password: 'YzZGagaY0MGSRwMexynARrwf6bnjzUMO', // Redis instance password
     socket: {
         host: 'redis-18923.c301.ap-south-1-1.ec2.redns.redis-cloud.com', // Redis host URL
         port: 18923 // Redis port number
@@ -19,10 +19,11 @@ redis_client.connect()
     .then(() => console.log("Connected to Redis successfully"))
     .catch((err) => console.error("Error connecting to Redis:", err));
 
+// Graceful shutdown
 process.on("SIGINT", () => {
     redis_client.quit();
     console.log("Redis client disconnected through app termination");
     process.exit(0);
 });
 
-module.exports =  redis_client;
+module.exports = redis_client;
