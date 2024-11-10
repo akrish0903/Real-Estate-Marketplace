@@ -15,6 +15,7 @@ import { Config } from '../../config/Config';
 import CheckIcon from '@mui/icons-material/Check';
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import useApi from '../../utils/useApi';
 import PropertyMap from '../../components/PropertyMap';
 
@@ -64,7 +65,7 @@ function PropertyPage() {
     
 
     useEffect(() => {
-        if (userAuthData.usrType === 'admin') {
+        if (userAuthData.usrType === 'admin' || userAuthData.usrType === 'buyer') {
             fetchAgentData();
         }
     }, [agentId, userAuthData]);
@@ -154,7 +155,19 @@ function PropertyPage() {
                                 onClick={toggleFavorite}
                                 style={{ color: Config.color.background }}
                             >
-                                <BookmarkIcon /> Favorite Property ({favoritesCount})
+                                <BookmarkIcon /> Favorite Property {/*({favoritesCount})*/}
+                            </button>
+
+                            <button
+                                className={Styles.scheduleButton}
+                                style={{ color: Config.color.background }}
+                                onClick={() => {
+                                    console.log({propertyData,agentData})
+                                    navigation('/Schedule', { state: { propertyData, agentData } });
+                                }}
+                                id='schedule'
+                            >
+                                <CalendarMonthIcon/> Schedule
                             </button>
 
 

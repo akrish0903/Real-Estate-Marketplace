@@ -7,6 +7,7 @@ const cors = require('cors');
 const httpErrors = require("http-errors");
 const authRoutes = require("./Routes/authUser");
 const userProperties = require("./Routes/userProperties");
+const scheduleRoutes = require("./Routes/scheduleRoutes");
 const MongoDBConnector = require("./db/MongoDBConnector");
 require("./utils/init_redis");
 
@@ -26,9 +27,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // main server 
 app.use(authRoutes);
 app.use(userProperties);
+app.use(scheduleRoutes);
 
 // unknown route
 app.use("*", (req, res, next) => {
