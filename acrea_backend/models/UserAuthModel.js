@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema({
     },
     userBio: {
         type: String,
-    },
+    }
+    ,
     usrStatus: {
         type: Boolean,
     }
