@@ -9,11 +9,16 @@ const authRoutes = require("./Routes/authUser");
 const userProperties = require("./Routes/userProperties");
 const scheduleRoutes = require("./Routes/scheduleRoutes");
 const questionRoutes = require("./Routes/questionRoutes")
+const reviewRoutes = require('./Routes/reviewRoutes');
 const MongoDBConnector = require("./db/MongoDBConnector");
 require("./utils/init_redis");
+const chartRoutes = require("./Routes/chartRoutes");
+const chatRoutes = require('./Routes/chatRoutes');
+const socketService = require('./services/socket');
 
 
 const app = express();
+const server = http.createServer(app);
 
 // connection to mongo db 
 MongoDBConnector();
@@ -28,12 +33,18 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Initialize socket.io
+socketService.init(server);
 
 // main server 
 app.use(authRoutes);
 app.use(userProperties);
 app.use(scheduleRoutes);
 app.use(questionRoutes);
+app.use("/api/users", chartRoutes);
+app.use("/api/properties", chartRoutes);
+app.use('/api', reviewRoutes);
+app.use('/api', chatRoutes);
 
 // unknown route
 app.use("*", (req, res, next) => {
@@ -50,9 +61,7 @@ app.use((err, req, res, next) => {
     })
 })
 
-
-
-// listener
-http.createServer(app).listen(process.env.PORT, () => {
+// Update the listener to use the server instead of app
+server.listen(process.env.PORT, () => {
     console.log("---------------------------Server is running---------------------------------------")
 })

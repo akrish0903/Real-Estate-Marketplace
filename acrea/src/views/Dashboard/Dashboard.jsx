@@ -14,6 +14,8 @@ import PropertiesCardVertical from '../../components/PropertiesCardVertical';
 import FeaturedPropertyContainer from '../../components/FeaturedPropertyContainer';
 import { useNavigate } from 'react-router-dom';
 import useApi from '../../utils/useApi';
+import Charts from '../../components/Charts'
+
 function Dashboard() {
     var userAuthData = useSelector(data => data.AuthUserDetailsSlice)
     console.log("user auth data ---> ", userAuthData);
@@ -147,10 +149,10 @@ function Dashboard() {
             if (response && response.user_agentlist_arr) {
                 setAgents(response.user_agentlist_arr);
             } else {
-                console.error("Failed to fetch agents:", response.message);
+                console.error("Failed to fetch agents/owners:", response.message);
             }
         } catch (error) {
-            console.error("Error fetching agents:", error);
+            console.error("Error fetching agents/owners:", error);
         }
     }
 
@@ -164,10 +166,10 @@ function Dashboard() {
                 method: "POST",
                 data: { agentId }
             });
-            console.log("Fetched Agent Data: ", agentDatasFetched);
+            console.log("Fetched Agent and Owner Data: ", agentDatasFetched);
             setAgentData(agentDatasFetched.user_agentdata_arr);
         } catch (error) {
-            console.error("Failed to fetch agent data", error);
+            console.error("Failed to fetch agent/owner data", error);
         }
     }
 
@@ -509,14 +511,29 @@ function Dashboard() {
                                         className={Styles.featuredPropertyContainerCardRight}
                                         style={{ backgroundColor: Config.color.background, width: "100%", gap: "1rem" }}
                                     >
-                                        <div className={Styles.featuredPropertyContainerCardRightTop}>
-                                            <p style={{
-                                                fontSize: Config.fontSize.regular,
-                                                fontWeight: "bolder",
-                                                color: Config.color.textColor
-                                            }}>{buyer.usrFullName}</p>
-                                            <p>{buyer.usrEmail}</p>
-                                            <p>{buyer.usrMobileNumber}</p>
+                                    <div className={Styles.featuredPropertyContainerCardRightTop} >
+                                        <div style={{width:"17.5rem",
+                                            height:"11rem",
+                                            overflow:"hidden",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            marginBottom: ".5rem",
+                                            borderRadius: "1rem" ,
+                                            boxShadow: "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px"
+                                            }}>
+                                            <img src={buyer.usrProfileUrl ?? Config.imagesPaths.user_null} alt="Profile Pic"/>
+                                        </div>
+                                            <p >
+                                                <span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Name:</span>
+                                                <span style={{
+                                                    fontSize: Config.fontSize.regular,
+                                                    fontWeight: "bolder",
+                                                    color: Config.color.textColor
+                                                }}>{buyer.usrFullName}
+                                                </span>
+                                            </p>
+                                            <p><span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Email:</span>{buyer.usrEmail}</p>
+                                            <p><span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Mobile No.:</span>{buyer.usrMobileNumber}</p>
                                         </div>
                                     </div>
                                 </div>))
@@ -549,7 +566,7 @@ function Dashboard() {
                         <h4 style={{
                             color: Config.color.primaryColor900,
                             fontWeight: "bolder"
-                        }}>Recently Joined Agents</h4>
+                        }}>Recently Joined Agents/Owners</h4>
                         <div className={Styles.featuredPropertyContainer}>
                             {agents.length > 0 ? (agents.map((agent) => (
                                 <div className={Styles.recentPropCard}>
@@ -558,14 +575,31 @@ function Dashboard() {
                                         className={Styles.featuredPropertyContainerCardRight}
                                         style={{ backgroundColor: Config.color.background, width: "100%", gap: "1rem" }}
                                     >
-                                        <div className={Styles.featuredPropertyContainerCardRightTop}>
-                                            <p style={{
-                                                fontSize: Config.fontSize.regular,
-                                                fontWeight: "bolder",
-                                                color: Config.color.textColor
-                                            }}>{agent.usrFullName}</p>
-                                            <p>{agent.usrEmail}</p>
-                                            <p>{agent.usrMobileNumber}</p>
+                                        <div className={Styles.featuredPropertyContainerCardRightTop} >
+                                            <div style={{width:"17.5rem",
+                                                height:"11rem",
+                                                overflow:"hidden",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                marginBottom: ".5rem",
+                                                borderRadius: "1rem" ,
+                                                boxShadow: "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px"
+                                                }}>
+                                                <img src={agent.usrProfileUrl ?? Config.imagesPaths.user_null} alt="Profile Pic"/>
+                                            </div>
+
+                                            <p>
+                                                <span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Name:</span>
+                                                <span style={{
+                                                        fontSize: Config.fontSize.regular,
+                                                        fontWeight: "bolder",
+                                                        color: Config.color.textColor
+                                                    }}>{agent.usrFullName}
+                                                </span>
+                                            </p>
+                                            <p><span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Email:</span>{agent.usrEmail}</p>
+                                            <p><span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Mobile No.:</span>{agent.usrMobileNumber}</p>
+                                            <p><span style={{color:Config.color.primaryColor900,fontWeight: "bolder"}}>Type:</span>{agent.usrType}</p>
                                         </div>
                                         <div className={Styles.featuredPropertyContainerCardRightBottom}>
                                             <button 
@@ -635,6 +669,11 @@ function Dashboard() {
                                 return <PropertiesCardVertical propertiesData={item} />
                             })}
                         </div>
+                    </div>
+                    <div 
+                    // style={{flexDirection:"row",display:"block"}}
+                    >
+                        <Charts/>
                     </div>
                 </div>
             )}

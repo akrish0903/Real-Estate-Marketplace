@@ -54,7 +54,6 @@ const signupUserAuthController = async (req, res, next) => {
             res.status(400).json({ message: "Error registering user", error: err });
         }
     }
-
 };
 
 // Get all users
@@ -64,14 +63,23 @@ const signinUserAuthController = async (req, res, next) => {
     try {
         var isEmailFound = await UserAuthModel.findOne({ usrEmail });
         if (isEmailFound) {
-            var isPasswordMatchedSchema = await isEmailFound.isValidPassword(usrPassword)
+            // Check if the account is disabled
+            if (!isEmailFound.usrStatus) {
+                return next(httpErrors.Unauthorized("Your account is disabled."));
+            }
+            var isPasswordMatchedSchema = await isEmailFound.isValidPassword(usrPassword);
             if (isPasswordMatchedSchema) {
                 // here user is logged in
                 // giving token back
+                // User is logged in successfully
                 const accessToken = await jwt_utils(isEmailFound.id);
                 const refreshToken = await jwt_refresh_token(isEmailFound.id);
                 res.status(201).json({
-                    message: "User signed in successfully", access_token: accessToken, refresh_token: refreshToken, user_details: {
+                    message: "User signed in successfully",
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    user_details: {
+                        _id: isEmailFound._id,
                         usrFullName: isEmailFound.usrFullName,
                         usrEmail: isEmailFound.usrEmail,
                         usrMobileNumber: isEmailFound.usrMobileNumber,
@@ -81,16 +89,15 @@ const signinUserAuthController = async (req, res, next) => {
                     }
                 });
             } else {
-                next(httpErrors.Unauthorized("Invalid Email or Password"))
+                next(httpErrors.Unauthorized("Invalid Email or Password"));
             }
         } else {
-            next(httpErrors.BadRequest("Invalid Email or Password"))
+            next(httpErrors.BadRequest("Invalid Email or Password"));
         }
     } catch (error) {
-        console.log(error)
-        next(httpErrors.ServiceUnavailable())
+        console.log(error);
+        next(httpErrors.ServiceUnavailable());
     }
-
 };
 
 const updateUserProfileAuthController = async function (req, res, next) {
@@ -248,15 +255,15 @@ const showAgentListController = async (req, res, next) => {
     const userId = req.payload.aud;
     try {
         const fetchedUserData = await UserAuthModel.findById(userId);
-        const usrAgentListArr = await UserAuthModel.find({ usrType: "agent" }).sort({ usrFullName: 1 });
-        console.log("Fetched agents: ", usrAgentListArr);
+        const usrAgentListArr = await UserAuthModel.find({ $or: [{ usrType: "agent" }, { usrType: 'owner' }] }).sort({ usrFullName: 1 });
+        console.log("Fetched agents and owners: ", usrAgentListArr);
         res.status(200).json({
             message: "All user records fetched successfully.",
             user_agentlist_arr: usrAgentListArr
         });
     } catch (error) {
-        console.error("Failed to fetch agents list:", error);
-        next(httpErrors.BadRequest("Failed to fetch agents list"));
+        console.error("Failed to fetch agents and owners list:", error);
+        next(httpErrors.BadRequest("Failed to fetch agents and owners list"));
     }
 };
 
@@ -289,15 +296,15 @@ const showRecentAgentstoAdminController = async (req, res, next) => {
         if (fetchedUserData.usrType !== "admin") {
             return res.status(403).json({ message: "Unauthorized access" });
         }
-        const usrAgentListArr = await UserAuthModel.find({ usrType: "agent" }).sort({ createdAt: -1 }) .limit(4); 
-        console.log("Fetched agents: ", usrAgentListArr);
+        const usrAgentListArr = await UserAuthModel.find({ $or: [{ usrType: "agent" }, { usrType: 'owner' }] }).sort({ createdAt: -1 }) .limit(4); 
+        console.log("Fetched agents and owners: ", usrAgentListArr);
         res.status(200).json({
-            message: "All agents records fetched successfully.",
+            message: "All agents and owners records fetched successfully.",
             user_agentlist_arr: usrAgentListArr
         });
     } catch (error) {
-        console.error("Failed to fetch agents list:", error);
-        next(httpErrors.BadRequest("Failed to fetch agents list"));
+        console.error("Failed to fetch agents and owners list:", error);
+        next(httpErrors.BadRequest("Failed to fetch agents and owners list"));
     }
 };
 
@@ -344,20 +351,6 @@ const updateBuyerProfileByAdminController = async function (req, res, next) {
     }
 };
 
-const deleteBuyerProfileAuthController = async (req, res, next) => {
-    const buyerId = req.params.buyerId;
-
-    try {
-        const buyer = await UserAuthModel.findByIdAndDelete(buyerId);
-        if (!buyer) {
-            return next(httpErrors.NotFound("Buyer not found."));
-        }
-        res.status(200).json({ message: "Buyer deleted successfully." });
-    } catch (error) {
-        next(httpErrors.InternalServerError("Error deleting buyer."));
-    }
-};
-
 const updateAgentProfileByAdminController = async function (req, res, next) {
     const adminId = req.payload.aud; // Admin ID from JWT token
     const agentId = req.params.agentId; // Agent ID from request params
@@ -374,7 +367,7 @@ const updateAgentProfileByAdminController = async function (req, res, next) {
         // Fetch the agent's data using agentId
         const agent = await UserAuthModel.findById(agentId);
         if (!agent) {
-            return next(httpErrors.NotFound("Agent not found."));
+            return next(httpErrors.NotFound("Agent/Owner not found."));
         }
 
         // Update agent's details
@@ -387,7 +380,7 @@ const updateAgentProfileByAdminController = async function (req, res, next) {
         const updatedAgent = await agent.save();
 
         res.status(200).json({
-            message: "Agent profile updated successfully by admin.",
+            message: "Agent/Owner profile updated successfully by admin.",
             agent_details: {
                 usrFullName: updatedAgent.usrFullName,
                 usrEmail: updatedAgent.usrEmail,
@@ -397,23 +390,7 @@ const updateAgentProfileByAdminController = async function (req, res, next) {
             },
         });
     } catch (error) {
-        next(httpErrors.InternalServerError("Error updating agent profile."));
-    }
-};
-
-const deleteAgentProfileAuthController = async (req, res, next) => {
-    const agentId = req.params.agentId; // Agent ID from request params
-
-    try {
-        // Find and delete the agent by ID
-        const agent = await UserAuthModel.findByIdAndDelete(agentId);
-        if (!agent) {
-            return next(httpErrors.NotFound("Agent not found."));
-        }
-
-        res.status(200).json({ message: "Agent deleted successfully." });
-    } catch (error) {
-        next(httpErrors.InternalServerError("Error deleting agent."));
+        next(httpErrors.InternalServerError("Error updating agent/owner profile."));
     }
 };
 
@@ -425,24 +402,43 @@ const showAgentDataController = async (req, res, next) => {
         const fetchedAgentData = await UserAuthModel.findById(agentId);
 
         if (!fetchedAgentData) {
-            return res.status(404).json({ message: "Agent not found." });
+            return res.status(404).json({ message: "Agent/Owner not found." });
         }
 
         res.status(200).json({
-            message: "Agent record fetched successfully.",
+            message: "Agent/Owner record fetched successfully.",
             user_agentdata_arr: fetchedAgentData
         });
     } catch (error) {
         console.error("Error fetching agent data:", error);
-        next(httpErrors.BadRequest("Failed to fetch agent data."));
+        next(httpErrors.BadRequest("Failed to fetch agent/owner data."));
     }
 };
 
+const toggleUserStatusAuthController = async (req, res, next) => {
+    const userId = req.params.userId; // Get user ID from request parameters
 
+    try {
+        const user = await UserAuthModel.findById(userId);
+        if (!user) {
+            return next(httpErrors.NotFound("User not found."));
+        }
+
+        // Toggle the user's status
+        user.usrStatus = !user.usrStatus; // Enable if disabled, disable if enabled
+        await user.save();
+
+        res.status(200).json({
+            message: `User account ${user.usrStatus ? 'enabled' : 'disabled'} successfully.`,
+            userStatus: user.usrStatus
+        });
+    } catch (error) {
+        next(httpErrors.InternalServerError("Error toggling user status."));
+    }
+};
 
 module.exports = { signupUserAuthController, signinUserAuthController, updateUserProfileAuthController,
     resetPasswordAuthController, refreshTokenUserAuthController, logoutUserAuthController,
     forgotPasswordAuthController, showBuyerListController, showAgentListController,
     showRecentBuyerstoAdminController, showRecentAgentstoAdminController,updateBuyerProfileByAdminController,
-    deleteBuyerProfileAuthController, updateAgentProfileByAdminController, deleteAgentProfileAuthController,
-    showAgentDataController };
+    updateAgentProfileByAdminController, showAgentDataController, toggleUserStatusAuthController };
