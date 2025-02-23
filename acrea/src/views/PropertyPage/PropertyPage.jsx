@@ -39,6 +39,11 @@ function PropertyPage() {
     const [reviews, setReviews] = useState([]);
     const [averageRating, setAverageRating] = useState(0); // Initialize to 0;
     const [initialMessage, setInitialMessage] = useState('');
+    const [minimumBid, setMinimumBid] = useState('');
+    const [biddingEndTime, setBiddingEndTime] = useState('');
+    const [currentHighestBid, setCurrentHighestBid] = useState(0);
+    const [bidAmount, setBidAmount] = useState('');
+    const [bidding, setBidding] = useState(null);
 
     async function fetchAgentData() {
         try {
@@ -153,15 +158,131 @@ function PropertyPage() {
         }
     };
 
+    const handleStartBidding = async (e) => {
+        e.preventDefault();
+        
+        // Validate inputs
+        if (!minimumBid || !biddingEndTime) {
+            toast.error('Please fill in all fields');
+            return;
+        }
+
+        // Validate minimum bid is positive
+        if (minimumBid <= 0) {
+            toast.error('Minimum bid must be greater than 0');
+            return;
+        }
+
+        // Validate end time is in the future
+        const endTime = new Date(biddingEndTime);
+        if (endTime <= new Date()) {
+            toast.error('Bidding end time must be in the future');
+            return;
+        }
+
+        try {
+            const response = await useApi({
+                authRequired: true,
+                authToken: userAuthData.usrAccessToken,
+                url: '/api/start-bidding',
+                method: 'POST',
+                data: {
+                    propertyId: propertyData._id,
+                    minimumBid: Number(minimumBid),
+                    biddingEndTime: endTime.toISOString()
+                }
+            });
+            
+            if (response.success) {
+                toast.success('Bidding started successfully');
+                setBidding(response.bidding);
+                setMinimumBid('');
+                setBiddingEndTime('');
+                // Refresh bidding data
+                fetchBiddingData();
+            } else {
+                toast.error(response.message || 'Failed to start bidding');
+            }
+        } catch (error) {
+            console.error('Error starting bidding:', error);
+            toast.error('Failed to start bidding');
+        }
+    };
+
+    const handlePlaceBid = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await useApi({
+                authRequired: true,
+                authToken: userAuthData.usrAccessToken,
+                url: '/api/place-bid',
+                method: 'POST',
+                data: {
+                    propertyId: propertyData._id,
+                    bidAmount: Number(bidAmount)
+                }
+            });
+            
+            if (response.success) {
+                toast.success('Bid placed successfully');
+                setBidAmount('');
+                // Refresh bidding data
+                fetchBiddingData();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to place bid');
+        }
+    };
+
+    const calculateHighestBid = (bids) => {
+        if (!bids || !Array.isArray(bids) || bids.length === 0) return 0;
+        return Math.max(...bids.map(bid => bid.bidAmount || 0));
+    };
+
+    const fetchBiddingData = async () => {
+        try {
+            const response = await useApi({
+                authRequired: true,
+                authToken: userAuthData.usrAccessToken,
+                url: `/api/property-bids/${propertyData._id}`,
+                method: 'GET'
+            });
+            
+            console.log('Bidding API response:', response);
+            
+            if (response.success) {
+                setBidding(response.bidding);
+                if (response.bidding?.bids && Array.isArray(response.bidding.bids)) {
+                    const highestBid = calculateHighestBid(response.bidding.bids);
+                    setCurrentHighestBid(highestBid);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch bidding data:', error);
+            toast.error('Failed to fetch bidding information');
+        }
+    };
+
     useEffect(() => {
-        // if (userAuthData.usrType === 'admin' || userAuthData.usrType === 'buyer') {
-            if (userAuthData.usrType === 'admin') {
+        if (bidding) {
+            console.log('Current bidding state:', bidding);
+            console.log('Bids array:', bidding.bids);
+            console.log('Winner:', bidding.winner);
+            console.log('Current user ID:', userAuthData._id);
+        }
+    }, [bidding]);
+
+    useEffect(() => {
+        if (userAuthData.usrType === 'admin') {
             fetchAgentData();
             }
             fetchReviews();
-
-        // }
+            fetchBiddingData();
     }, [agentId, userAuthData, propertyData._id]);
+
+    useEffect(() => {
+        fetchBiddingData();
+    }, [propertyData._id]);
 
     // Check if userAuthData is defined to avoid potential errors
     if (!userAuthData) {
@@ -327,19 +448,19 @@ function PropertyPage() {
                             <div className={Styles.contactFormSection}>
                                 <h3>Contact Property Agent</h3>
                                 <form onSubmit={handleMessageSubmit}>
-                                    <div className={Styles.inputGroup}>
+                                    <div className={Styles.inputGroup1}>
                                         <label htmlFor="name">Name:</label>
                                         <input type="text" id="name" placeholder="Enter your name" value={userAuthData.usrFullName} disabled required />
                                     </div>
-                                    <div className={Styles.inputGroup}>
+                                    <div className={Styles.inputGroup1}>
                                         <label htmlFor="email">Email:</label>
                                         <input type="email" id="email" placeholder="Enter your email" value={userAuthData.usrEmail} disabled required />
                                     </div>
-                                    <div className={Styles.inputGroup}>
+                                    <div className={Styles.inputGroup1}>
                                         <label htmlFor="phone">Phone:</label>
                                         <input type="text" id="phone" placeholder="Enter your phone number" value={userAuthData.usrMobileNumber} disabled />
                                     </div>
-                                    <div className={Styles.inputGroup}>
+                                    <div className={Styles.inputGroup1}>
                                         <label htmlFor="message">Message:</label>
                                         <textarea 
                                             id="message" 
@@ -356,6 +477,151 @@ function PropertyPage() {
                                     </center>
                                 </form>
                             </div>
+
+                            {userAuthData.usrType === 'buyer' && (
+                                <div className={Styles.biddingSection}>
+                                    <h3>Property Bidding</h3>
+                                    {bidding ? (
+                                        bidding.status === 'active' ? (
+                                            <>
+                                                <div className={Styles.biddingStatus}>
+                                                    <p>Current Highest Bid: ₹{currentHighestBid.toLocaleString()}</p>
+                                                    <p>Minimum Bid: ₹{bidding.minimumBid.toLocaleString()}</p>
+                                                    <p>Ends at: {new Date(bidding.biddingEndTime).toLocaleString()}</p>
+                                                </div>
+
+                                                <form onSubmit={handlePlaceBid}>
+                                                    <div className={Styles.inputGroup}>
+                                                        <label htmlFor="bidAmount">Your Bid Amount:</label>
+                                                        <input
+                                                            type="number"
+                                                            id="bidAmount"
+                                                            value={bidAmount}
+                                                            onChange={(e) => setBidAmount(e.target.value)}
+                                                            min={Math.max(bidding.minimumBid, currentHighestBid + 1)}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <button type="submit" className={Styles.placeBidButton}>
+                                                        Place Bid
+                                                    </button>
+                                                </form>
+                                                
+                                                <div className={Styles.biddingHistory}>
+                                                    <h4>Bid History</h4>
+                                                    {bidding.bids && bidding.bids.length > 0 ? (
+                                                        <ul>
+                                                            {bidding.bids
+                                                                .sort((a, b) => b.bidAmount - a.bidAmount)
+                                                                .map((bid, index) => (
+                                                                    <li key={bid._id || index} className={Styles.bidHistoryItem}>
+                                                                        <span className={Styles.bidAmount}>₹{bid.bidAmount.toLocaleString()}</span>
+                                                                        <span className={Styles.bidderName}>
+                                                                            by {bid.buyerId?.usrFullName || 'Unknown'}
+                                                                        </span>
+                                                                        <span className={Styles.bidTime}>
+                                                                            {new Date(bid.bidTime).toLocaleString()}
+                                                                        </span>
+                                                                    </li>
+                                                                ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <p>No bids yet</p>
+                                                    )}
+                                                </div>
+                                            </>
+                                        ) : bidding.status === 'completed' ? (
+                                            <div className={Styles.biddingCompleted}>
+                                                {bidding.winner ? (
+                                                    <>
+                                                        {/* Winner View */}
+                                                        {bidding.winner.buyerId._id === userAuthData._id ? (
+                                                            <div className={Styles.winnerAnnouncement}>
+                                                                <h4>🎉 Congratulations! You Won!</h4>
+                                                                <div className={Styles.winnerDetails}>
+                                                                    <p>You won this property with a bid of ₹{bidding.winner.bidAmount.toLocaleString()}</p>
+                                                                    <p>Please contact the agent/owner to proceed with the transaction.</p>
+                                                                    <div className={Styles.agentContact}>
+                                                                        <h5>Agent/Owner Contact Details:</h5>
+                                                                        <p>Name: {bidding.agentId.usrFullName}</p>
+                                                                        <p>Email: {bidding.agentId.usrEmail}</p>
+                                                                        <p>Phone: {bidding.agentId.usrMobileNumber}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            /* Other Participants View */
+                                                            bidding.bids.some(bid => bid.buyerId._id === userAuthData._id) ? (
+                                                                <div className={Styles.loserAnnouncement}>
+                                                                    <h4>Bidding Ended</h4>
+                                                                    <p>Unfortunately, you didn't win this bidding.</p>
+                                                                    <div className={Styles.winnerInfo}>
+                                                                        <p>Winner: {bidding.winner.buyerId.usrFullName}</p>
+                                                                        <p>Winning Bid: ₹{bidding.winner.bidAmount.toLocaleString()}</p>
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                /* Non-Participants View */
+                                                                <p className={Styles.biddingClosed}>This bidding cycle has ended.</p>
+                                                            )
+                                                        )}
+
+                                                        {/* Show Final Results to Everyone */}
+                                                        <div className={Styles.finalResults}>
+                                                            <h4>Final Bidding Results</h4>
+                                                            <div className={Styles.winnerCard}>
+                                                                <div className={Styles.winnerHeader}>
+                                                                    <span className={Styles.trophyIcon}>🏆</span>
+                                                                    <h5>Winning Bid</h5>
+                                                                </div>
+                                                                <p className={Styles.winnerName}>{bidding.winner.buyerId.usrFullName}</p>
+                                                                <p className={Styles.winningBid}>₹{bidding.winner.bidAmount.toLocaleString()}</p>
+                                                                <p className={Styles.bidTime}>
+                                                                    {new Date(bidding.winner.bidTime).toLocaleString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <p className={Styles.noBids}>No bids were placed during this bidding cycle.</p>
+                                                )}
+
+                                                {/* Show Bid History */}
+                                                <div className={Styles.biddingHistory}>
+                                                    <h4>Complete Bid History</h4>
+                                                    {bidding.bids && bidding.bids.length > 0 ? (
+                                                        <ul>
+                                                            {bidding.bids
+                                                                .sort((a, b) => b.bidAmount - a.bidAmount)
+                                                                .map((bid, index) => (
+                                                                    <li key={bid._id || index} className={Styles.bidHistoryItem}>
+                                                                        <span className={Styles.bidAmount}>
+                                                                            ₹{bid.bidAmount.toLocaleString()}
+                                                                        </span>
+                                                                        <span className={Styles.bidderName}>
+                                                                            by {bid.buyerId?.usrFullName || 'Unknown'}
+                                                                        </span>
+                                                                        <span className={Styles.bidTime}>
+                                                                            {new Date(bid.bidTime).toLocaleString()}
+                                                                        </span>
+                                                                    </li>
+                                                                ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <p>No bids yet</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className={Styles.biddingClosed}>This bidding cycle has ended.</p>
+                                        )
+                                    ) : (
+                                        <p className={Styles.noBidding}>
+                                            The agent/owner has not set a bidding schedule for this property yet.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </aside>
                     )}
 
@@ -368,7 +634,7 @@ function PropertyPage() {
                                 onClick={() => { navigation('/EditProperty', { state: propertyData }) }}
                                 id='edit'
                             >
-                                <EditIcon /> EDIT
+                                <EditIcon /> EDIT Property
                             </button>
                             {(userAuthData.usrType === 'admin' && agentData && agentData.usrFullName) && (
                                 <div className={Styles.agentContainer}>
@@ -388,14 +654,113 @@ function PropertyPage() {
                                     </div>
                                 </div>
                             )}
+                            <div className={Styles.biddingSection}>
+                                <h3>Property Bidding</h3>
+                                {!bidding ? (
+                                    <>
+                                        <h4>Start New Bidding Cycle</h4>
+                                        <form onSubmit={handleStartBidding}>
+                                            <div className={Styles.inputGroup}>
+                                                <label htmlFor="minimumBid">Minimum Bid Amount (₹):</label>
+                                                <input
+                                                    type="number"
+                                                    id="minimumBid"
+                                                    value={minimumBid}
+                                                    onChange={(e) => setMinimumBid(e.target.value)}
+                                                    min="1"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className={Styles.inputGroup}>
+                                                <label htmlFor="biddingEndTime">Bidding End Time:</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    id="biddingEndTime"
+                                                    value={biddingEndTime}
+                                                    onChange={(e) => setBiddingEndTime(e.target.value)}
+                                                    min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                                                    required
+                                                />
+                                            </div>
+                                            <button type="submit" className={Styles.startBiddingButton}>
+                                                Start Bidding
+                                            </button>
+                                        </form>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className={Styles.biddingStatus}>
+                                            <p>Status: <span className={Styles.activeStatus}>{bidding.status}</span></p>
+                                            <p>Current Highest Bid: ₹{currentHighestBid.toLocaleString()}</p>
+                                            <p>Minimum Bid: ₹{bidding.minimumBid.toLocaleString()}</p>
+                                            <p>Ends at: {new Date(bidding.biddingEndTime).toLocaleString()}</p>
+                                        </div>
+                                        
+                                        {bidding.status === 'completed' && bidding.winner && (
+                                            <div className={Styles.agentWinnerSection}>
+                                                <h4>🏆 Winning Bid Details</h4>
+                                                <div className={Styles.winnerDetailsAgent}>
+                                                    <div className={Styles.winnerInfoRow}>
+                                                        <span>Winner Name:</span>
+                                                        <span>{bidding.winner.buyerId.usrFullName}</span>
+                                                    </div>
+                                                    <div className={Styles.winnerInfoRow}>
+                                                        <span>Email:</span>
+                                                        <span>{bidding.winner.buyerId.usrEmail}</span>
+                                                    </div>
+                                                    <div className={Styles.winnerInfoRow}>
+                                                        <span>Phone:</span>
+                                                        <span>{bidding.winner.buyerId.usrMobileNumber}</span>
+                                                    </div>
+                                                    <div className={Styles.winnerInfoRow}>
+                                                        <span>Winning Amount:</span>
+                                                        <span className={Styles.winningAmount}>
+                                                            ₹{bidding.winner.bidAmount.toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <div className={Styles.winnerInfoRow}>
+                                                        <span>Bid Time:</span>
+                                                        <span>{new Date(bidding.winner.bidTime).toLocaleString()}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className={Styles.biddingHistory}>
+                                            <h4>Bid History</h4>
+                                            {bidding.bids && bidding.bids.length > 0 ? (
+                                                <ul>
+                                                    {bidding.bids
+                                                        .sort((a, b) => b.bidAmount - a.bidAmount)
+                                                        .map((bid, index) => (
+                                                            <li key={bid._id || index} className={Styles.bidHistoryItem}>
+                                                                <span className={Styles.bidAmount}>
+                                                                    ₹{bid.bidAmount.toLocaleString()}
+                                                                </span>
+                                                                <span className={Styles.bidderName}>
+                                                                    by {bid.buyerId?.usrFullName || 'Unknown'}
+                                                                </span>
+                                                                <span className={Styles.bidTime}>
+                                                                    {new Date(bid.bidTime).toLocaleString()}
+                                                                </span>
+                                                            </li>
+                                                        ))}
+                                                </ul>
+                                            ) : (
+                                                <p>No bids yet</p>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </aside>
                     )}
-                    
                 </div>
             </div>
+
             <Footer />
         </div>
     );
-};
+}
 
 export default PropertyPage;
