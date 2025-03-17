@@ -83,51 +83,26 @@ router.post("/send-otp", async (req, res) => {
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000);
 
-        // Check Redis connection
+        // Check Redis connection and attempt reconnect if needed
         if (!redisClient.isReady) {
-            console.error("Redis client not connected");
-            return res.status(503).json({ 
-                error: "Service temporarily unavailable. Please try again later." 
-            });
+            try {
+                await redisClient.connect();
+            } catch (connError) {
+                console.error("Redis connection failed:", connError);
+                // Fall back to email-only OTP delivery without Redis
+                return sendOTPEmail(res, usrEmail, otp);
+            }
         }
 
+        // Try to store in Redis, but continue even if it fails
         try {
-            // Store OTP in Redis with 5-minute expiration
             await redisClient.setEx(`otp:${usrEmail}`, 300, otp.toString());
         } catch (redisError) {
-            console.error("Redis error:", redisError);
-            return res.status(500).json({ 
-                error: "Failed to store OTP. Please try again." 
-            });
+            console.error("Redis storage error:", redisError);
+            // Continue with email delivery even if Redis fails
         }
 
-        // Setup email
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: usrEmail,
-            subject: "Your OTP Code",
-            text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-            html: `
-                <h2>Your OTP Code</h2>
-                <p>Your OTP is: <strong>${otp}</strong></p>
-                <p>This code will expire in 5 minutes.</p>
-                <p>If you didn't request this code, please ignore this email.</p>
-            `
-        };
-
-        // Send email
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.error("Mail error:", err);
-                return res.status(500).json({ 
-                    error: "Failed to send OTP email. Please try again." 
-                });
-            }
-            res.json({ 
-                success: true, 
-                message: "OTP sent successfully to your email!" 
-            });
-        });
+        return sendOTPEmail(res, usrEmail, otp);
 
     } catch (error) {
         console.error("Send OTP Error:", error);
@@ -136,6 +111,40 @@ router.post("/send-otp", async (req, res) => {
         });
     }
 });
+
+// Helper function to send OTP email
+const sendOTPEmail = (res, email, otp) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+        html: `
+            <h2>Your OTP Code</h2>
+            <p>Your OTP is: <strong>${otp}</strong></p>
+            <p>This code will expire in 5 minutes.</p>
+            <p>If you didn't request this code, please ignore this email.</p>
+        `
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("Mail error:", err);
+                res.status(500).json({ 
+                    error: "Failed to send OTP email. Please try again." 
+                });
+                reject(err);
+            } else {
+                res.json({ 
+                    success: true, 
+                    message: "OTP sent successfully to your email!" 
+                });
+                resolve(info);
+            }
+        });
+    });
+};
 
 // **2️⃣ Verify OTP Route**
 router.post("/verify-otp", async (req, res) => {
