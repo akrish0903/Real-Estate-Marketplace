@@ -1,31 +1,28 @@
-const redis = require('redis');
+const { createClient } = require('redis');
 
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
+const redis_client = createClient({
+    url: 'rediss://red-csm64r8gph6c73addhgg:za1UCzlG8j4vwJDScNorSd1GJ10tHtRM@singapore-redis.render.com:6379', // Redis connection URL
+    socket: {
+        tls: true // Enable TLS
+    }
 });
 
-redisClient.on('error', (err) => {
-  console.error('Redis Client Error:', err);
-});
-
-redisClient.on('connect', () => {
-  console.log('Connected to Redis');
-});
+// Event listeners for connection monitoring
+redis_client.on("connect", () => console.log("Redis client connecting..."));
+redis_client.on("ready", () => console.log("Redis client connected and ready to use"));
+redis_client.on("error", (err) => console.error("Redis connection error:", err));
+redis_client.on("end", () => console.log("Redis client disconnected"));
 
 // Connect to Redis
-(async () => {
-  try {
-    await redisClient.connect();
-  } catch (err) {
-    console.error('Redis connection error:', err);
-  }
-})();
+redis_client.connect()
+    .then(() => console.log("Connected to Redis successfully"))
+    .catch((err) => console.error("Error connecting to Redis:", err));
 
 // Graceful shutdown
 process.on("SIGINT", () => {
-    redisClient.quit();
+    redis_client.quit();
     console.log("Redis client disconnected through app termination");
     process.exit(0);
 });
 
-module.exports = redisClient;
+module.exports = redis_client;

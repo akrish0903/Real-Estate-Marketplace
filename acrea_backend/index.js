@@ -58,19 +58,13 @@ app.use("*", (req, res, next) => {
 })
 // error route 
 app.use((err, req, res, next) => {
-    console.error('Error details:', {
-        message: err.message,
-        stack: err.stack,
-        status: err.status
-    });
-    
-    res.status(err.status || 500).json({
+    res.status(err.status || 500)
+    res.send({
         error: {
             status: err.status || 500,
             message: err.message,
-            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
         }
-    });
+    })
 })
 
 // Update the listener to use the server instead of app

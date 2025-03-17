@@ -75,54 +75,38 @@ router.put('/toggle-user-status/:userId', jwt_verify_token, UserAuthController.t
 // **1️⃣ Send OTP Route**
 router.post("/send-otp", async (req, res) => {
     try {
-        const { usrEmail } = req.body;
-        if (!usrEmail) {
-            return res.status(400).json({ error: "Email is required" });
+      const { usrEmail } = req.body;
+      if (!usrEmail) return res.status(400).json({ error: "Email is required" });
+  
+      const otp = Math.floor(100000 + Math.random() * 900000);
+  
+      // Ensure Redis client is connected before using it
+      if (!redisClient.isReady) {
+        return res.status(500).json({ error: "Redis client not connected" });
+      }
+  
+      await redisClient.setEx(`otp:${usrEmail}`, 300, otp.toString());
+  
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: usrEmail,
+        subject: "Your OTP Code",
+        text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+      };
+  
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error("Mail error:", err);
+          return res.status(500).json({ error: "Failed to send OTP" });
         }
-
-        // Check Redis connection
-        if (!redisClient.isReady) {
-            console.error('Redis client not connected');
-            return res.status(503).json({ 
-                error: "Service temporarily unavailable. Please try again later." 
-            });
-        }
-
-        const otp = Math.floor(100000 + Math.random() * 900000);
-
-        try {
-            await redisClient.setEx(`otp:${usrEmail}`, 300, otp.toString());
-        } catch (redisError) {
-            console.error('Redis error:', redisError);
-            return res.status(500).json({ 
-                error: "Failed to store OTP. Please try again." 
-            });
-        }
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: usrEmail,
-            subject: "Your OTP Code",
-            text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-        };
-
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.error("Mail error:", err);
-                return res.status(500).json({ 
-                    error: "Failed to send OTP email. Please try again." 
-                });
-            }
-            res.json({ success: true, message: "OTP sent successfully!" });
-        });
-
+        res.json({ success: true, message: "OTP sent!" });
+      });
+  
     } catch (error) {
-        console.error("Send OTP Error:", error);
-        res.status(500).json({ 
-            error: "Internal server error. Please try again later." 
-        });
+      console.error("Send OTP Error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-});
+  });
   
 
 // **2️⃣ Verify OTP Route**
