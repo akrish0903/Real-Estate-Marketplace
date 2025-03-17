@@ -60,10 +60,11 @@ const getUserRegistrations = async (req, res) => {
   const getPriceDistribution = async (req, res) => {
     try {
       const priceRanges = [
-        { range: "0-50000", min: 0, max: 50000 },
-        { range: "50000-100000", min: 50000, max: 100000 },
-        { range: "100000-200000", min: 100000, max: 200000 },
-        { range: "200000+", min: 200000, max: Number.MAX_VALUE }
+        { range: "0-500000", min: 0, max: 500000 },
+        { range: "500000-1000000", min: 500000, max: 1000000 },
+        { range: "1000000-1500000", min: 1000000, max: 1500000 },
+        { range: "1500000-2000000", min: 1500000, max: 2000000 },
+        { range: "2000000+", min: 2000000, max: Number.MAX_VALUE }
       ];
       
       const priceDistribution = await Promise.all(
@@ -151,7 +152,7 @@ const getPropertyInsights = async (req, res) => {
     };
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const prompt = `Analyze this real estate market data and provide key business insights.
       ${JSON.stringify(formattedData, null, 2)}

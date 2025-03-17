@@ -41,6 +41,9 @@ const userPropertySchema = new mongoose.Schema({
         street: {
             type: String,
         },
+        district: {
+            type: String,
+        },
         city: {
             type: String,
         },
@@ -78,7 +81,28 @@ const userPropertySchema = new mongoose.Schema({
     userListingImage: {
         type: [String],
     },
-    
+    ageOfProperty: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    commercialZone: {
+        type: Boolean,
+        default: false,
+    },
+    gatedCommunity: {
+        type: Boolean,
+        default: false,
+    },
+    floorNumber: {
+        type: Number,
+        default: 0,
+    },
+    status: {
+        type: String,
+        enum: ['active', 'unlisted', 'disabled', 'bidding', 'sold'],
+        default: 'active'
+    }
 });
 
 

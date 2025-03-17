@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { predictPrice } = require('../controller/aiController');
 
 // Initialize Gemini with your API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -121,7 +122,7 @@ router.post('/chat', async (req, res) => {
 
     // Initialize the model with more specific configuration
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
+      model: "gemini-1.5-pro",
       generationConfig: {
         maxOutputTokens: 1000,
         temperature: 0.7,
@@ -160,5 +161,7 @@ router.post('/chat', async (req, res) => {
     });
   }
 });
+
+router.post('/predict-price', predictPrice);
 
 module.exports = router;

@@ -58,6 +58,8 @@ function AgentList() {
         }
     }
 
+    
+
     useEffect(() => {
         if (userAuthData.usrType === "admin"|| userAuthData.usrType === 'buyer') {
             fetchAgentsList();
