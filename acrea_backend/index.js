@@ -27,7 +27,7 @@ MongoDBConnector();
 // cors setting 
 // Enable CORS for all routes
 app.use(cors({
-    origin: ['https://real-estate-marketplace-1-ojvt.onrender.com', 'http://localhost:3000'],
+    origin: ['https://real-estate-marketplace-1-ojvt.onrender.com', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true // If you're using cookies/sessions
