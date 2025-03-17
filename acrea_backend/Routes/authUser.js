@@ -6,12 +6,12 @@ const upload = require("../config/multerStorage");
 const { jwt_verify_token } = require('../utils/jwt_utils');
 const cloudinary = require("../config/cloudinaryConfig")
 const nodemailer = require("nodemailer");
-const redis = require("redis"); // Store OTP temporarily
+// Import the shared Redis client instead of creating a new one
+const redisClient = require("../utils/init_redis");
 require("dotenv").config();
 
-// Setup Redis client
-const redisClient = redis.createClient();
-redisClient.connect().catch(console.error);
+// No need to create another Redis client or connect
+// The connection is already handled in init_redis.js
 
 // Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
@@ -82,7 +82,9 @@ router.post("/send-otp", async (req, res) => {
   
       // Ensure Redis client is connected before using it
       if (!redisClient.isReady) {
-        return res.status(500).json({ error: "Redis client not connected" });
+        console.log("Redis client not ready, waiting...");
+        // Wait for connection or return error after timeout
+        return res.status(500).json({ error: "Redis service temporarily unavailable, please try again" });
       }
   
       await redisClient.setEx(`otp:${usrEmail}`, 300, otp.toString());
@@ -106,7 +108,7 @@ router.post("/send-otp", async (req, res) => {
       console.error("Send OTP Error:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
-  });
+});
   
 
 // **2️⃣ Verify OTP Route**
@@ -114,6 +116,11 @@ router.post("/verify-otp", async (req, res) => {
   try {
     const { usrEmail, otp } = req.body;
     if (!usrEmail || !otp) return res.status(400).json({ error: "Missing OTP or Email" });
+
+    // Check if Redis is ready
+    if (!redisClient.isReady) {
+      return res.status(500).json({ error: "Redis service temporarily unavailable, please try again" });
+    }
 
     // Get OTP from Redis
     const storedOtp = await redisClient.get(`otp:${usrEmail}`);
